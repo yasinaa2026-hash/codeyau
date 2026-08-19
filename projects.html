@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>codeyau — Projects</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>html,body{min-height:100%}.project-card{transition:transform .15s,box-shadow .15s}.project-card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.18)}</style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+<header class="sticky top-0 z-20 bg-slate-900/95 backdrop-blur border-b border-slate-800">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3"><a href="./" class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center"><i class="fa-solid fa-code"></i></a><div><div class="font-bold text-xl bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">codeyau</div><div class="text-xs text-slate-500">Projects</div></div></div>
+    <div class="flex items-center gap-2"><button id="saveCurrent" class="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm"><i class="fa-solid fa-plus mr-1"></i>Save Current Project</button><a href="./" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm"><i class="fa-solid fa-code mr-1"></i>Editor</a></div>
+  </div>
+</header>
+<main class="max-w-6xl mx-auto px-4 py-8">
+  <div class="flex items-end justify-between gap-4 mb-6"><div><h1 class="text-3xl font-bold">My Projects</h1><p class="text-slate-400 mt-1">Your projects are stored locally on this device. No sign-in required.</p></div><div id="count" class="text-sm text-slate-500"></div></div>
+  <div id="empty" class="hidden rounded-2xl border border-dashed border-slate-700 bg-slate-900/50 p-12 text-center"><div class="w-14 h-14 mx-auto rounded-2xl bg-slate-800 flex items-center justify-center text-indigo-400 text-xl"><i class="fa-regular fa-folder-open"></i></div><h2 class="mt-4 text-xl font-semibold">No saved projects yet</h2><p class="text-slate-500 mt-2">Open the editor, create your code, then come back here and save it as a project.</p><a href="./" class="inline-flex mt-5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500">Open Editor</a></div>
+  <div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</main>
+<div id="modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm items-center justify-center p-4"><div class="w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl"><div class="p-5 border-b border-slate-700 flex justify-between"><div><h2 class="text-lg font-semibold">Project name</h2><p class="text-xs text-slate-500 mt-1">Give this saved project a name.</p></div><button id="closeModal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button></div><div class="p-5"><input id="projectName" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2.5 outline-none focus:border-indigo-500" placeholder="My Python Project"><div class="flex justify-end gap-2 mt-4"><button id="cancelModal" class="px-4 py-2 bg-slate-800 rounded-lg">Cancel</button><button id="confirmSave" class="px-4 py-2 bg-indigo-600 rounded-lg">Save Project</button></div></div></div></div>
+<div id="toast" class="fixed right-4 bottom-4 translate-y-20 opacity-0 transition-all z-[60] bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm"></div>
+<script>
+(() => {
+  const KEY='codeyau-projects', FILES='codeyau-files';
+  const $=id=>document.getElementById(id);
+  const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const formatDate=iso=>new Intl.DateTimeFormat(undefined,{dateStyle:'medium',timeStyle:'short'}).format(new Date(iso));
+  function getProjects(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return[]}}
+  function setProjects(p){localStorage.setItem(KEY,JSON.stringify(p))}
+  function getWorkspace(){try{const files=JSON.parse(localStorage.getItem(FILES)||'null');return Array.isArray(files)&&files.length?files:null}catch{return null}}
+  function showToast(msg){$('toast').textContent=msg;$('toast').classList.remove('translate-y-20','opacity-0');clearTimeout(showToast.t);showToast.t=setTimeout(()=>$('toast').classList.add('translate-y-20','opacity-0'),2200)}
+  function openModal(prefill=''){ $('projectName').value=prefill;$('modal').classList.remove('hidden');$('modal').classList.add('flex');setTimeout(()=>$('projectName').focus(),0);}
+  function closeModal(){$('modal').classList.add('hidden');$('modal').classList.remove('flex')}
+  function saveCurrentProject(){const workspace=getWorkspace();if(!workspace){showToast('No current workspace found. Open the editor first.');return}openModal('My Project')}
+  function confirmSave(){const name=$('projectName').value.trim();const workspace=getWorkspace();if(!name||!workspace)return;const now=new Date().toISOString();const p=getProjects();const current={id:crypto.randomUUID(),name,files:workspace.map(f=>({name:f.name,language:f.language,content:f.content})),createdAt:now,updatedAt:now};p.unshift(current);setProjects(p);closeModal();render();showToast('Project saved.');}
+  function openProject(id){const p=getProjects().find(x=>x.id===id);if(!p)return;localStorage.setItem(FILES,JSON.stringify(p.files));localStorage.setItem('codeyau-current','0');location.href='./';}
+  function deleteProject(id){if(!confirm('Delete this saved project?'))return;setProjects(getProjects().filter(x=>x.id!==id));render();showToast('Project deleted.');}
+  function duplicateProject(id){const p=getProjects().find(x=>x.id===id);if(!p)return;const now=new Date().toISOString();const copy={...p,id:crypto.randomUUID(),name:p.name+' Copy',createdAt:now,updatedAt:now,files:p.files.map(f=>({...f}))};const all=getProjects();all.unshift(copy);setProjects(all);render();showToast('Project duplicated.');}
+  function renameProject(id){const p=getProjects().find(x=>x.id===id);if(!p)return;openModal(p.name);$('confirmSave').onclick=()=>{const name=$('projectName').value.trim();if(!name)return;p.name=name;p.updatedAt=new Date().toISOString();setProjects(getProjects());closeModal();render();showToast('Project renamed.');$('confirmSave').onclick=confirmSave;}}
+  function exportProject(id){const p=getProjects().find(x=>x.id===id);if(!p)return;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(p,null,2)],{type:'application/json'}));a.download=p.name.replace(/[^a-z0-9_-]+/gi,'_')+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+  function render(){const p=getProjects();$('count').textContent=`${p.length} project${p.length===1?'':'s'}`;$('empty').classList.toggle('hidden',p.length!==0);$('grid').innerHTML=p.map(x=>{const main=x.files?.[0]?.name||'No files';const lang=x.files?.[0]?.language||'unknown';return `<article class="project-card rounded-2xl border border-slate-800 bg-slate-900 p-5"><div class="flex items-start justify-between gap-3"><div class="w-11 h-11 rounded-xl bg-indigo-600/15 text-indigo-300 flex items-center justify-center"><i class="fa-solid fa-folder-open"></i></div><button class="menu text-slate-500 hover:text-white" data-id="${x.id}"><i class="fa-solid fa-ellipsis"></i></button></div><h2 class="mt-4 text-lg font-semibold truncate">${escapeHtml(x.name)}</h2><p class="text-xs text-slate-500 mt-1">${escapeHtml(main)} · ${escapeHtml(lang)}</p><p class="text-xs text-slate-600 mt-1">Updated ${escapeHtml(formatDate(x.updatedAt))}</p><div class="flex gap-2 mt-4"><button class="open flex-1 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm" data-id="${x.id}">Open</button><button class="dup px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700" data-id="${x.id}" title="Duplicate"><i class="fa-regular fa-copy"></i></button></div><div class="actions hidden mt-2 grid grid-cols-2 gap-2"><button class="rename py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs" data-id="${x.id}">Rename</button><button class="export py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs" data-id="${x.id}">Export</button><button class="delete col-span-2 py-2 rounded-lg bg-red-950/30 text-red-300 hover:bg-red-950/50 text-xs" data-id="${x.id}">Delete</button></div></article>`}).join('');
+    document.querySelectorAll('.open').forEach(b=>b.onclick=()=>openProject(b.dataset.id));document.querySelectorAll('.dup').forEach(b=>b.onclick=()=>duplicateProject(b.dataset.id));document.querySelectorAll('.menu').forEach(b=>b.onclick=()=>b.parentElement.parentElement.querySelector('.actions').classList.toggle('hidden'));document.querySelectorAll('.rename').forEach(b=>b.onclick=()=>renameProject(b.dataset.id));document.querySelectorAll('.export').forEach(b=>b.onclick=()=>exportProject(b.dataset.id));document.querySelectorAll('.delete').forEach(b=>b.onclick=()=>deleteProject(b.dataset.id));
+  }
+  $('saveCurrent').onclick=saveCurrentProject;$('closeModal').onclick=closeModal;$('cancelModal').onclick=closeModal;$('confirmSave').onclick=confirmSave;$('projectName').addEventListener('keydown',e=>{if(e.key==='Enter')confirmSave();});$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal()});
+  render();
+})();
+</script>
+</body></html>
