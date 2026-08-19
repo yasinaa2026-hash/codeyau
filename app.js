@@ -24,7 +24,7 @@
 
   const storage = {
     files: 'codeyau-files', current: 'codeyau-current', theme: 'codeyau-theme',
-    users: 'codeyau-users', session: 'codeyau-session', key: 'codeyau-gemini-key', model: 'codeyau-gemini-model-v2'
+    users: 'codeyau-users', session: 'codeyau-session', key: 'codeyau-gemini-key', model: 'codeyau-gemini-model-v2-v2'
   };
 
   function toast(message, error = false) {
