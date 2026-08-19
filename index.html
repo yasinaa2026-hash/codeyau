@@ -1,672 +1,113 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="h-full">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0f172a">
-    <meta name="description" content="codeyau - browser-based online code editor">
-    <title>codeyau — Online IDE</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/eclipse.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['Fira Code', 'monospace']
-                    }
-                }
-            }
-        };
-    </script>
-
-    <style>
-        html, body { min-height: 100%; }
-        .CodeMirror {
-            height: 100% !important;
-            font-family: 'Fira Code', monospace !important;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        .CodeMirror-gutters {
-            background: #0f172a !important;
-            border-right: 1px solid #1e293b !important;
-        }
-        .CodeMirror-linenumber { color: #64748b !important; }
-        .CodeMirror-activeline-background { background: rgba(99, 102, 241, 0.08) !important; }
-        .light-mode .CodeMirror-gutters {
-            background: #f8fafc !important;
-            border-right-color: #cbd5e1 !important;
-        }
-        .light-mode .CodeMirror-linenumber { color: #64748b !important; }
-        .light-mode .CodeMirror-activeline-background { background: rgba(99, 102, 241, 0.06) !important; }
-        #preview-frame { width: 100%; height: 100%; border: 0; background: white; }
-        .resizer { cursor: col-resize; user-select: none; }
-        @media (max-width: 1023px) {
-            .desktop-only { display: none !important; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="codeyau - fast browser-based online IDE">
+  <title>codeyau — Online IDE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/eclipse.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+  <style>
+    html,body{min-height:100%;margin:0}.CodeMirror{height:100%!important;font-family:'Fira Code',monospace!important;font-size:14px;line-height:1.6}.CodeMirror-gutters{background:#0f172a!important;border-right:1px solid #1e293b!important}.CodeMirror-linenumber{color:#64748b!important}.CodeMirror-activeline-background{background:rgba(99,102,241,.08)!important}#preview-frame{width:100%;height:100%;border:0;background:#fff}.sidebar-collapsed{width:0!important;overflow:hidden}.status-item{white-space:nowrap}.light-mode .CodeMirror-gutters{background:#f8fafc!important;border-right-color:#cbd5e1!important}.light-mode .CodeMirror-activeline-background{background:rgba(99,102,241,.05)!important}
+  </style>
 </head>
 <body id="app-body" class="h-full bg-slate-900 text-slate-100 flex flex-col font-sans overflow-hidden">
-
-<header id="app-header" class="bg-slate-800 border-b border-slate-700 flex items-center justify-between gap-3 px-4 py-2.5 shrink-0 select-none z-20">
-    <div class="flex items-center gap-3 min-w-0">
-        <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-lg shrink-0 flex items-center justify-center">
-            <i class="fa-solid fa-code text-lg"></i>
-        </div>
-        <div class="min-w-0">
-            <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">codeyau</span>
-                <span class="text-[11px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-medium">Browser IDE</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="flex items-center gap-2 shrink-0">
-        <select id="language-select" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
-            <option value="python">Python 3</option>
-            <option value="javascript">JavaScript</option>
-            <option value="cpp">C++</option>
-            <option value="java">Java</option>
-            <option value="html">HTML / CSS / JS</option>
-        </select>
-        <button id="theme-toggle" class="p-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition" title="Toggle theme" aria-label="Toggle theme">
-            <i class="fa-solid fa-sun text-sm" id="theme-icon"></i>
-        </button>
-        <button id="save-btn" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition">
-            <i class="fa-solid fa-floppy-disk"></i><span>Save</span>
-        </button>
-        <button id="share-btn" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition">
-            <i class="fa-solid fa-share-nodes"></i><span>Share</span>
-        </button>
-        <button id="run-btn" class="flex items-center gap-2 px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg shadow-lg shadow-emerald-900/30 transition transform active:scale-95">
-            <i class="fa-solid fa-play text-xs"></i><span>Run</span>
-        </button>
-    </div>
+<header id="app-header" class="bg-slate-800 border-b border-slate-700 flex items-center justify-between gap-3 px-3 sm:px-4 py-2 shrink-0 z-20">
+  <div class="flex items-center gap-2 min-w-0">
+    <button id="sidebar-btn" class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300" title="Toggle files" aria-label="Toggle files"><i class="fa-solid fa-bars"></i></button>
+    <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-lg shrink-0"><i class="fa-solid fa-code"></i></div>
+    <div class="min-w-0"><div class="flex items-center gap-2"><span class="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">codeyau</span><span class="hidden sm:inline text-[11px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full">Browser IDE</span></div></div>
+  </div>
+  <div class="flex items-center gap-1.5 shrink-0">
+    <select id="language-select" class="max-w-[150px] bg-slate-700 text-slate-200 text-xs sm:text-sm rounded-lg px-2.5 py-1.5 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"><option value="python">Python 3</option><option value="javascript">JavaScript</option><option value="cpp">C++</option><option value="java">Java</option><option value="html">HTML / CSS / JS</option></select>
+    <button id="search-btn" class="p-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg" title="Find in file (Ctrl+F)"><i class="fa-solid fa-magnifying-glass"></i></button>
+    <button id="theme-btn" class="p-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg" title="Toggle theme"><i id="theme-icon" class="fa-solid fa-sun"></i></button>
+    <button id="save-btn" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg"><i class="fa-solid fa-floppy-disk"></i>Save</button>
+    <button id="download-btn" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg"><i class="fa-solid fa-download"></i>Export</button>
+    <button id="share-btn" class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg"><i class="fa-solid fa-share-nodes"></i>Share</button>
+    <button id="run-btn" class="flex items-center gap-2 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 text-white text-sm font-semibold rounded-lg"><i class="fa-solid fa-play text-xs"></i><span>Run</span></button>
+  </div>
 </header>
-
-<div class="flex-1 flex overflow-hidden relative">
-    <aside id="sidebar" class="w-64 bg-slate-800/90 border-r border-slate-700 flex flex-col shrink-0 transition-all duration-300">
-        <div class="p-3 border-b border-slate-700 flex items-center justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Project Files</span>
-            <button id="new-file-btn" class="text-slate-400 hover:text-white text-sm p-1 rounded transition" title="New file">
-                <i class="fa-solid fa-plus"></i>
-            </button>
-        </div>
-        <div id="file-list" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
-        <div class="p-3 border-t border-slate-700 bg-slate-800/50 text-xs text-slate-400 flex items-center justify-between gap-2">
-            <span class="truncate">Workspace: <strong class="text-slate-200">codeyau</strong></span>
-            <button id="reset-btn" class="hover:text-red-400 transition shrink-0" title="Reset current file">
-                <i class="fa-solid fa-rotate-right"></i>
-            </button>
-        </div>
-    </aside>
-
-    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-slate-950">
-        <section id="editor-panel" class="flex-1 min-w-0 flex flex-col border-b lg:border-b-0 lg:border-r border-slate-800 relative">
-            <div id="editor-tabs" class="bg-slate-900 border-b border-slate-800 flex items-center overflow-x-auto px-2 py-1 gap-1 shrink-0"></div>
-            <div id="editor-container" class="flex-1 w-full min-h-0 relative overflow-hidden">
-                <textarea id="code-textarea" aria-label="Code editor"></textarea>
-            </div>
-        </section>
-
-        <section id="output-panel" class="w-full lg:w-[25rem] bg-slate-900 flex flex-col shrink-0 min-h-0">
-            <div class="bg-slate-800 px-4 py-2.5 border-b border-slate-700 flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-terminal text-indigo-400 text-xs"></i>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Output / Console</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button id="preview-toggle" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded bg-slate-700/50 transition hidden" title="Toggle preview">Preview</button>
-                    <button id="clear-btn" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded bg-slate-700/50 transition">Clear</button>
-                </div>
-            </div>
-
-            <div id="console-output" class="flex-1 min-h-0 p-4 font-mono text-xs overflow-y-auto text-slate-300 space-y-2 bg-slate-950/60 select-text">
-                <div class="text-slate-500 italic">Ready. Run your program with Ctrl+Enter.</div>
-            </div>
-
-            <div id="preview-container" class="hidden flex-1 min-h-0 bg-white">
-                <iframe id="preview-frame" title="HTML preview" sandbox="allow-scripts"></iframe>
-            </div>
-
-            <div class="p-3 border-t border-slate-800 bg-slate-900">
-                <label for="stdin-input" class="block text-xs font-medium text-slate-400 mb-1">Standard Input (stdin)</label>
-                <input type="text" id="stdin-input" placeholder="Optional input for your program..." class="w-full bg-slate-950 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700 focus:outline-none focus:border-indigo-500">
-            </div>
-        </section>
-    </main>
+<div class="flex-1 flex overflow-hidden">
+  <aside id="sidebar" class="w-64 bg-slate-800 border-r border-slate-700 flex flex-col shrink-0 transition-all duration-200">
+    <div class="p-3 border-b border-slate-700 flex items-center justify-between"><span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Project Files</span><button id="new-file" class="text-slate-400 hover:text-white p-1" title="New file"><i class="fa-solid fa-plus"></i></button></div>
+    <div id="file-list" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
+    <div class="p-2 border-t border-slate-700 grid grid-cols-3 gap-1"><button id="import-btn" class="text-xs py-2 bg-slate-700/60 hover:bg-slate-700 rounded" title="Import workspace"><i class="fa-solid fa-file-import"></i></button><button id="export-all" class="text-xs py-2 bg-slate-700/60 hover:bg-slate-700 rounded" title="Export workspace"><i class="fa-solid fa-box-archive"></i></button><button id="reset-all" class="text-xs py-2 bg-slate-700/60 hover:bg-slate-700 rounded hover:text-red-300" title="Reset workspace"><i class="fa-solid fa-rotate-right"></i></button></div>
+    <input id="import-input" type="file" accept=".json,application/json" hidden>
+  </aside>
+  <main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-slate-950 min-w-0">
+    <section class="flex-1 min-w-0 flex flex-col border-b lg:border-b-0 lg:border-r border-slate-800">
+      <div id="editor-tabs" class="bg-slate-900 border-b border-slate-800 flex items-center overflow-x-auto px-2 py-1 gap-1 shrink-0"></div>
+      <div id="editor-wrap" class="flex-1 min-h-0"><textarea id="code-editor" aria-label="Code editor"></textarea></div>
+      <div id="statusbar" class="h-6 shrink-0 bg-slate-900 border-t border-slate-800 px-3 flex items-center justify-between text-[10px] text-slate-500 overflow-hidden"><div class="flex gap-3"><span id="status-file">main.py</span><span id="status-lang">Python</span></div><div class="flex gap-3"><span id="status-pos" class="status-item">Ln 1, Col 1</span><span id="status-stats" class="status-item">0 lines · 0 words</span></div></div>
+    </section>
+    <section class="w-full lg:w-[26rem] bg-slate-900 flex flex-col shrink-0 min-h-0">
+      <div class="bg-slate-800 px-4 py-2.5 border-b border-slate-700 flex items-center justify-between"><div class="flex items-center gap-2"><i class="fa-solid fa-terminal text-indigo-400 text-xs"></i><span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Output / Preview</span></div><div class="flex gap-1.5"><button id="preview-toggle" class="hidden text-slate-400 hover:text-white text-xs px-2 py-1 rounded bg-slate-700/50">Console</button><button id="clear-btn" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded bg-slate-700/50">Clear</button></div></div>
+      <div id="console" class="flex-1 min-h-0 p-4 font-mono text-xs overflow-auto bg-slate-950/60 select-text"><div class="text-slate-500 italic">Ready. Run with Ctrl+Enter.</div></div>
+      <div id="preview" class="hidden flex-1 min-h-0 bg-white"><iframe id="preview-frame" title="HTML preview" sandbox="allow-scripts"></iframe></div>
+      <div class="p-3 border-t border-slate-800"><label class="block text-xs font-medium text-slate-400 mb-1" for="stdin">Standard Input</label><input id="stdin" class="w-full bg-slate-950 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700 focus:outline-none focus:border-indigo-500" placeholder="Optional input..."></div>
+    </section>
+  </main>
 </div>
-
-<div id="toast" class="fixed bottom-5 right-5 bg-slate-800 text-slate-100 px-4 py-3 rounded-xl shadow-2xl border border-slate-700 translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3 z-50 pointer-events-none">
-    <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
-    <span id="toast-msg" class="text-sm font-medium">Notification</span>
-</div>
-
+<div id="toast" class="fixed bottom-5 right-5 bg-slate-800 text-slate-100 px-4 py-3 rounded-xl shadow-2xl border border-slate-700 translate-y-20 opacity-0 transition-all duration-200 flex gap-3 z-50 pointer-events-none"><i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i><span id="toast-msg" class="text-sm font-medium"></span></div>
 <script>
 (() => {
-    'use strict';
-
-    const templates = {
-        python: `a = 384 + 347\nprint(a)\n\ndef greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("Developer"))`,
-        javascript: `// JavaScript Template\nconst numbers = [10, 20, 30, 40];\nconst total = numbers.reduce((sum, value) => sum + value, 0);\nconsole.log("Numbers:", numbers);\nconsole.log("Total:", total);`,
-        cpp: `#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello from C++!" << endl;\n    return 0;\n}`,
-        java: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java!");\n    }\n}`,
-        html: `<!doctype html>\n<html lang="en">\n<head>\n  <meta charset="utf-8">\n  <title>Preview</title>\n  <style>body{font-family:system-ui;padding:2rem}h1{color:#4f46e5}</style>\n</head>\n<body>\n  <h1>Hello, codeyau!</h1>\n  <p>Edit this file and run it to update the preview.</p>\n</body>\n</html>`
-    };
-
-    const modeMap = {
-        python: 'python',
-        javascript: 'javascript',
-        cpp: 'text/x-c++src',
-        java: 'text/x-java',
-        html: 'htmlmixed'
-    };
-
-    const extMap = { python: 'py', javascript: 'js', cpp: 'cpp', java: 'java', html: 'html' };
-
-    const refs = {
-        body: document.getElementById('app-body'),
-        header: document.getElementById('app-header'),
-        language: document.getElementById('language-select'),
-        themeToggle: document.getElementById('theme-toggle'),
-        themeIcon: document.getElementById('theme-icon'),
-        save: document.getElementById('save-btn'),
-        share: document.getElementById('share-btn'),
-        run: document.getElementById('run-btn'),
-        newFile: document.getElementById('new-file-btn'),
-        reset: document.getElementById('reset-btn'),
-        clear: document.getElementById('clear-btn'),
-        fileList: document.getElementById('file-list'),
-        tabs: document.getElementById('editor-tabs'),
-        textarea: document.getElementById('code-textarea'),
-        console: document.getElementById('console-output'),
-        stdin: document.getElementById('stdin-input'),
-        previewToggle: document.getElementById('preview-toggle'),
-        previewContainer: document.getElementById('preview-container'),
-        previewFrame: document.getElementById('preview-frame'),
-        toast: document.getElementById('toast'),
-        toastIcon: document.getElementById('toast-icon'),
-        toastMsg: document.getElementById('toast-msg')
-    };
-
-    let files = [{ name: 'main.py', language: 'python', content: templates.python }];
-    let currentFileIndex = 0;
-    let editor = null;
-    let pyodidePromise = null;
-    let saveTimer = null;
-    let isLight = localStorage.getItem('codeyau-theme') === 'light';
-
-    function escapeHtml(value) {
-        return String(value).replace(/[&<>"']/g, char => ({
-            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-        })[char]);
-    }
-
-    function showToast(message, type = 'success') {
-        refs.toastMsg.textContent = message;
-        refs.toastIcon.className = type === 'error'
-            ? 'fa-solid fa-circle-exclamation text-red-400'
-            : 'fa-solid fa-circle-check text-emerald-400';
-        refs.toast.classList.remove('translate-y-20', 'opacity-0');
-        clearTimeout(showToast.timer);
-        showToast.timer = setTimeout(() => refs.toast.classList.add('translate-y-20', 'opacity-0'), 2600);
-    }
-
-    function persist() {
-        try {
-            localStorage.setItem('codeyau-files', JSON.stringify(files));
-            localStorage.setItem('codeyau-current-file', String(currentFileIndex));
-        } catch (error) {
-            showToast('Browser storage is unavailable.', 'error');
-        }
-    }
-
-    function loadSavedWorkspace() {
-        try {
-            const raw = localStorage.getItem('codeyau-files');
-            if (!raw) return;
-            const parsed = JSON.parse(raw);
-            if (!Array.isArray(parsed) || !parsed.length) return;
-            files = parsed.filter(file => file && typeof file.name === 'string' && typeof file.content === 'string')
-                .map(file => ({
-                    name: file.name,
-                    language: modeMap[file.language] ? file.language : detectLanguage(file.name),
-                    content: file.content
-                }));
-            if (!files.length) files = [{ name: 'main.py', language: 'python', content: templates.python }];
-            const savedIndex = Number(localStorage.getItem('codeyau-current-file'));
-            currentFileIndex = Number.isInteger(savedIndex) && savedIndex >= 0 && savedIndex < files.length ? savedIndex : 0;
-        } catch (_) {
-            files = [{ name: 'main.py', language: 'python', content: templates.python }];
-            currentFileIndex = 0;
-        }
-    }
-
-    function detectLanguage(name) {
-        const ext = name.split('.').pop().toLowerCase();
-        if (ext === 'js' || ext === 'mjs') return 'javascript';
-        if (ext === 'cpp' || ext === 'cc' || ext === 'cxx' || ext === 'c') return 'cpp';
-        if (ext === 'java') return 'java';
-        if (ext === 'html' || ext === 'htm') return 'html';
-        return 'python';
-    }
-
-    function updateEditorFromFile() {
-        const file = files[currentFileIndex];
-        if (!file || !editor) return;
-        editor.setOption('mode', modeMap[file.language]);
-        editor.setValue(file.content);
-        refs.language.value = file.language;
-        editor.clearHistory();
-        renderFileList();
-        renderTabs();
-        updatePreviewVisibility();
-    }
-
-    function renderFileList() {
-        refs.fileList.replaceChildren();
-        files.forEach((file, index) => {
-            const row = document.createElement('div');
-            row.className = `flex items-center justify-between px-3 py-2 rounded-lg text-sm cursor-pointer transition ${
-                index === currentFileIndex
-                    ? 'bg-indigo-600/20 text-indigo-300 font-medium border border-indigo-500/30'
-                    : 'text-slate-400 hover:bg-slate-700/50 hover:text-slate-200'
-            }`;
-            row.title = file.name;
-            row.addEventListener('click', () => switchFile(index));
-
-            const label = document.createElement('div');
-            label.className = 'flex items-center gap-2 min-w-0';
-            const icon = document.createElement('i');
-            icon.className = 'fa-regular fa-file-code text-xs';
-            const text = document.createElement('span');
-            text.className = 'truncate';
-            text.textContent = file.name;
-            label.append(icon, text);
-
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'text-slate-500 hover:text-red-400 text-xs px-1.5';
-            deleteButton.title = `Delete ${file.name}`;
-            deleteButton.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-            deleteButton.addEventListener('click', event => {
-                event.stopPropagation();
-                deleteFile(index);
-            });
-            if (files.length <= 1) deleteButton.classList.add('invisible');
-
-            row.append(label, deleteButton);
-            refs.fileList.appendChild(row);
-        });
-    }
-
-    function renderTabs() {
-        refs.tabs.replaceChildren();
-        files.forEach((file, index) => {
-            const tab = document.createElement('button');
-            tab.type = 'button';
-            tab.className = `flex items-center gap-2 px-3 py-1.5 text-xs rounded-t-lg cursor-pointer border-t-2 transition whitespace-nowrap ${
-                index === currentFileIndex
-                    ? 'bg-slate-950 text-slate-200 border-indigo-500 font-medium'
-                    : 'bg-slate-900/60 text-slate-400 border-transparent hover:text-slate-200'
-            }`;
-            tab.textContent = file.name;
-            tab.addEventListener('click', () => switchFile(index));
-            refs.tabs.appendChild(tab);
-        });
-    }
-
-    function switchFile(index) {
-        if (index < 0 || index >= files.length || index === currentFileIndex) return;
-        syncCurrentFile();
-        currentFileIndex = index;
-        updateEditorFromFile();
-        persist();
-        clearConsole(true);
-    }
-
-    function syncCurrentFile() {
-        if (editor && files[currentFileIndex]) files[currentFileIndex].content = editor.getValue();
-    }
-
-    function addNewFile() {
-        const suggested = `file${files.length + 1}.py`;
-        const name = prompt('Enter a file name:', suggested);
-        if (!name) return;
-        const trimmed = name.trim();
-        if (!/^[A-Za-z0-9._-]+$/.test(trimmed)) {
-            showToast('Use only letters, numbers, dots, dashes or underscores.', 'error');
-            return;
-        }
-        if (files.some(file => file.name.toLowerCase() === trimmed.toLowerCase())) {
-            showToast('A file with that name already exists.', 'error');
-            return;
-        }
-        const language = detectLanguage(trimmed);
-        files.push({ name: trimmed, language, content: templates[language] || '' });
-        currentFileIndex = files.length - 1;
-        updateEditorFromFile();
-        persist();
-    }
-
-    function deleteFile(index) {
-        if (files.length <= 1) return;
-        if (!confirm(`Delete ${files[index].name}?`)) return;
-        files.splice(index, 1);
-        currentFileIndex = Math.min(currentFileIndex, files.length - 1);
-        updateEditorFromFile();
-        persist();
-    }
-
-    function changeLanguage(language) {
-        syncCurrentFile();
-        const file = files[currentFileIndex];
-        const currentBase = file.name.includes('.') ? file.name.slice(0, file.name.lastIndexOf('.')) : file.name;
-        file.language = language;
-        file.name = `${currentBase}.${extMap[language]}`;
-        if (confirm('Replace the current file with the selected language template?')) {
-            file.content = templates[language];
-        }
-        updateEditorFromFile();
-        persist();
-    }
-
-    function resetCurrentFile() {
-        const file = files[currentFileIndex];
-        if (!confirm(`Reset ${file.name} to its default template?`)) return;
-        file.content = templates[file.language] || '';
-        updateEditorFromFile();
-        persist();
-        showToast('File reset.');
-    }
-
-    function clearConsole(quiet = false) {
-        refs.console.innerHTML = '<div class="text-slate-500 italic">Console cleared.</div>';
-        if (!quiet) showToast('Console cleared.');
-    }
-
-    function appendConsole(text, type = 'info') {
-        const line = document.createElement('div');
-        line.className = type === 'error' ? 'text-red-400' : type === 'success' ? 'text-emerald-400' : 'text-slate-300';
-        line.textContent = text;
-        refs.console.appendChild(line);
-        refs.console.scrollTop = refs.console.scrollHeight;
-    }
-
-    async function runCode() {
-        if (!editor) return;
-        syncCurrentFile();
-        const file = files[currentFileIndex];
-        const code = file.content;
-        const stdin = refs.stdin.value;
-
-        refs.run.disabled = true;
-        refs.run.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i><span>Running...</span>';
-        refs.console.innerHTML = '';
-        appendConsole(`▶ Running ${file.name}...`);
-
-        try {
-            if (file.language === 'javascript') {
-                await runJavaScript(code, stdin);
-            } else if (file.language === 'python') {
-                await runPython(code, stdin);
-            } else if (file.language === 'html') {
-                runHtml(code);
-            } else {
-                appendConsole(`${file.language === 'cpp' ? 'C++' : 'Java'} cannot be compiled inside a static GitHub Pages site yet. Connect a server-side compiler/API to enable this language.`, 'error');
-            }
-        } catch (error) {
-            appendConsole(error?.message || String(error), 'error');
-        } finally {
-            refs.run.disabled = false;
-            refs.run.innerHTML = '<i class="fa-solid fa-play text-xs"></i><span>Run</span>';
-        }
-    }
-
-    function runJavaScript(code, stdin) {
-        return new Promise(resolve => {
-            const token = `codeyau_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-            const frame = document.createElement('iframe');
-            frame.sandbox.add('allow-scripts');
-            frame.style.display = 'none';
-            document.body.appendChild(frame);
-
-            const cleanup = () => {
-                window.removeEventListener('message', onMessage);
-                frame.remove();
-                resolve();
-            };
-
-            const onMessage = event => {
-                if (event.source !== frame.contentWindow || !event.data || event.data.token !== token) return;
-                if (event.data.type === 'log') appendConsole(event.data.args, 'info');
-                if (event.data.type === 'error') appendConsole(event.data.message, 'error');
-                if (event.data.type === 'done') cleanup();
-            };
-
-            window.addEventListener('message', onMessage);
-            const safeInput = JSON.stringify(stdin);
-            const payload = code.replace(/<\/script/gi, '<\\/script');
-            frame.srcdoc = `<!doctype html><html><body><script>
-                (() => {
-                    const TOKEN = ${JSON.stringify(token)};
-                    const input = ${safeInput};
-                    const send = (type, data) => parent.postMessage({ token: TOKEN, type, ...data }, '*');
-                    const format = value => {
-                        try { return typeof value === 'string' ? value : JSON.stringify(value, null, 2); }
-                        catch (_) { return String(value); }
-                    };
-                    const original = { log: console.log, warn: console.warn, error: console.error };
-                    console.log = (...args) => send('log', { args: args.map(format).join(' ') });
-                    console.warn = (...args) => send('log', { args: '[warn] ' + args.map(format).join(' ') });
-                    console.error = (...args) => send('error', { message: args.map(format).join(' ') });
-                    window.prompt = () => input;
-                    window.onerror = message => { send('error', { message: String(message) }); };
-                    try {
-                        ${payload}
-                    } catch (error) {
-                        send('error', { message: error?.stack || error?.message || String(error) });
-                    } finally {
-                        send('done', {});
-                    }
-                })();
-            <\/script></body></html>`;
-        });
-    }
-
-    async function loadPyodide() {
-        if (window.pyodide) return window.pyodide;
-        if (!pyodidePromise) {
-            pyodidePromise = new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js';
-                script.onload = async () => {
-                    try { resolve(await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/' })); }
-                    catch (error) { reject(error); }
-                };
-                script.onerror = () => reject(new Error('Could not load the Python runtime from CDN.'));
-                document.head.appendChild(script);
-            });
-        }
-        return pyodidePromise;
-    }
-
-    async function runPython(code, stdin) {
-        const pyodide = await loadPyodide();
-        pyodide.setStdin({ stdin: () => stdin });
-        pyodide.setStdout({ batched: text => appendConsole(text, 'info') });
-        pyodide.setStderr({ batched: text => appendConsole(text, 'error') });
-        await pyodide.runPythonAsync(code);
-        appendConsole('✓ Python execution completed.', 'success');
-    }
-
-    function runHtml(code) {
-        refs.previewContainer.classList.remove('hidden');
-        refs.console.classList.add('hidden');
-        refs.previewToggle.classList.remove('hidden');
-        refs.previewToggle.textContent = 'Console';
-        refs.previewFrame.srcdoc = code;
-        appendConsole('✓ HTML preview updated.', 'success');
-    }
-
-    function updatePreviewVisibility() {
-        const isHtml = files[currentFileIndex]?.language === 'html';
-        refs.previewToggle.classList.toggle('hidden', !isHtml);
-        if (!isHtml) {
-            refs.previewContainer.classList.add('hidden');
-            refs.console.classList.remove('hidden');
-            return;
-        }
-        refs.previewContainer.classList.remove('hidden');
-        refs.console.classList.add('hidden');
-        refs.previewToggle.textContent = 'Console';
-    }
-
-    function togglePreview() {
-        const previewShown = !refs.previewContainer.classList.contains('hidden');
-        refs.previewContainer.classList.toggle('hidden', previewShown);
-        refs.console.classList.toggle('hidden', !previewShown);
-        refs.previewToggle.textContent = previewShown ? 'Preview' : 'Console';
-    }
-
-    function saveProject() {
-        syncCurrentFile();
-        persist();
-        showToast('Project saved in this browser.');
-    }
-
-    function base64Encode(value) {
-        const bytes = new TextEncoder().encode(value);
-        let binary = '';
-        bytes.forEach(byte => { binary += String.fromCharCode(byte); });
-        return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    }
-
-    function base64Decode(value) {
-        const normalized = value.replace(/-/g, '+').replace(/_/g, '/') + '=='.slice((value.length + 3) % 4);
-        const binary = atob(normalized);
-        return new TextDecoder().decode(Uint8Array.from(binary, char => char.charCodeAt(0)));
-    }
-
-    function shareProject() {
-        syncCurrentFile();
-        const payload = base64Encode(JSON.stringify({ version: 1, file: files[currentFileIndex] }));
-        const url = `${location.origin}${location.pathname}#share=${payload}`;
-        if (navigator.clipboard?.writeText) {
-            navigator.clipboard.writeText(url).then(() => showToast('Share link copied to clipboard.')).catch(() => prompt('Copy this share link:', url));
-        } else {
-            prompt('Copy this share link:', url);
-        }
-        history.replaceState(null, '', `#share=${payload}`);
-    }
-
-    function loadSharedProject() {
-        const hash = location.hash;
-        if (!hash.startsWith('#share=')) return;
-        try {
-            const payload = JSON.parse(base64Decode(hash.slice(7)));
-            if (!payload?.file?.name || !payload?.file?.language || typeof payload.file.content !== 'string') return;
-            files = [{ name: payload.file.name, language: payload.file.language, content: payload.file.content }];
-            currentFileIndex = 0;
-            if (editor) updateEditorFromFile();
-            showToast('Shared project loaded.');
-        } catch (_) {
-            showToast('Invalid share link.', 'error');
-        }
-    }
-
-    function applyTheme() {
-        refs.body.classList.toggle('light-mode', isLight);
-        refs.body.classList.toggle('bg-slate-900', !isLight);
-        refs.body.classList.toggle('bg-slate-50', isLight);
-        refs.body.classList.toggle('text-slate-100', !isLight);
-        refs.body.classList.toggle('text-slate-800', isLight);
-        refs.header.classList.toggle('bg-slate-800', !isLight);
-        refs.header.classList.toggle('bg-white', isLight);
-        refs.header.classList.toggle('border-slate-700', !isLight);
-        refs.header.classList.toggle('border-slate-200', isLight);
-        refs.themeIcon.className = isLight ? 'fa-solid fa-moon text-sm text-amber-500' : 'fa-solid fa-sun text-sm text-yellow-400';
-        if (editor) editor.setOption('theme', isLight ? 'eclipse' : 'dracula');
-        localStorage.setItem('codeyau-theme', isLight ? 'light' : 'dark');
-    }
-
-    refs.language.addEventListener('change', event => changeLanguage(event.target.value));
-    refs.themeToggle.addEventListener('click', () => { isLight = !isLight; applyTheme(); });
-    refs.save.addEventListener('click', saveProject);
-    refs.share.addEventListener('click', shareProject);
-    refs.run.addEventListener('click', runCode);
-    refs.newFile.addEventListener('click', addNewFile);
-    refs.reset.addEventListener('click', resetCurrentFile);
-    refs.clear.addEventListener('click', () => { refs.console.classList.remove('hidden'); clearConsole(); });
-    refs.previewToggle.addEventListener('click', togglePreview);
-
-    document.addEventListener('keydown', event => {
-        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
-            event.preventDefault();
-            saveProject();
-        }
-        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-            event.preventDefault();
-            runCode();
-        }
-    });
-
-    window.addEventListener('beforeunload', () => { syncCurrentFile(); persist(); });
-
-    loadSavedWorkspace();
-
-    window.addEventListener('DOMContentLoaded', () => {
-        editor = CodeMirror.fromTextArea(refs.textarea, {
-            mode: modeMap[files[currentFileIndex].language],
-            theme: isLight ? 'eclipse' : 'dracula',
-            lineNumbers: true,
-            autoCloseBrackets: true,
-            matchBrackets: true,
-            styleActiveLine: true,
-            indentUnit: 4,
-            tabSize: 4,
-            indentWithTabs: false,
-            lineWrapping: false,
-            extraKeys: {
-                'Ctrl-Enter': () => runCode(),
-                'Cmd-Enter': () => runCode(),
-                'Ctrl-S': () => saveProject(),
-                'Cmd-S': () => saveProject()
-            }
-        });
-
-        editor.on('change', () => {
-            syncCurrentFile();
-            clearTimeout(saveTimer);
-            saveTimer = setTimeout(persist, 500);
-        });
-
-        renderFileList();
-        renderTabs();
-        refs.language.value = files[currentFileIndex].language;
-        applyTheme();
-        updatePreviewVisibility();
-        loadSharedProject();
-    });
+'use strict';
+tailwind.config={darkMode:'class'};
+const templates={python:`a = 384 + 347\nprint(a)\n\ndef greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("Developer"))`,javascript:`const numbers = [10, 20, 30, 40];\nconst total = numbers.reduce((sum, value) => sum + value, 0);\nconsole.log("Numbers:", numbers);\nconsole.log("Total:", total);`,cpp:`#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello from C++!" << endl;\n    return 0;\n}`,java:`public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java!");\n    }\n}`,html:`<!doctype html>\n<html lang="en">\n<head><meta charset="utf-8"><title>codeyau Preview</title><style>body{font-family:system-ui;padding:2rem}h1{color:#4f46e5}</style></head>\n<body><h1>Hello, codeyau!</h1><p>Edit this file and click Run.</p></body></html>`};
+const modes={python:'python',javascript:'javascript',cpp:'text/x-c++src',java:'text/x-java',html:'htmlmixed'};
+const exts={python:'py',javascript:'js',cpp:'cpp',java:'java',html:'html'};
+const $=id=>document.getElementById(id);
+const refs={body:$('app-body'),header:$('app-header'),sidebar:$('sidebar'),lang:$('language-select'),files:$('file-list'),tabs:$('editor-tabs'),textarea:$('code-editor'),run:$('run-btn'),save:$('save-btn'),download:$('download-btn'),share:$('share-btn'),newFile:$('new-file'),search:$('search-btn'),theme:$('theme-btn'),themeIcon:$('theme-icon'),console:$('console'),preview:$('preview'),previewFrame:$('preview-frame'),previewToggle:$('preview-toggle'),clear:$('clear-btn'),stdin:$('stdin'),importBtn:$('import-btn'),importInput:$('import-input'),exportAll:$('export-all'),resetAll:$('reset-all'),sidebarBtn:$('sidebar-btn'),statusFile:$('status-file'),statusLang:$('status-lang'),statusPos:$('status-pos'),statusStats:$('status-stats'),toast:$('toast'),toastMsg:$('toast-msg'),toastIcon:$('toast-icon')};
+let files=[{name:'main.py',language:'python',content:templates.python}],current=0,editor=null,saveTimer=null,pythonRuntime=null,light=localStorage.getItem('codeyau-theme')==='light';
+function toast(msg,type='success'){refs.toastMsg.textContent=msg;refs.toastIcon.className=type==='error'?'fa-solid fa-circle-exclamation text-red-400':'fa-solid fa-circle-check text-emerald-400';refs.toast.classList.remove('translate-y-20','opacity-0');clearTimeout(toast.timer);toast.timer=setTimeout(()=>refs.toast.classList.add('translate-y-20','opacity-0'),2500)}
+function persist(){try{localStorage.setItem('codeyau-files',JSON.stringify(files));localStorage.setItem('codeyau-current',String(current))}catch{toast('Storage unavailable','error')}}
+function detect(name){const e=name.split('.').pop().toLowerCase();return e==='js'||e==='mjs'?'javascript':e==='java'?'java':['cpp','cc','cxx','c'].includes(e)?'cpp':['html','htm'].includes(e)?'html':'python'}
+function sync(){if(editor&&files[current])files[current].content=editor.getValue()}
+function loadSaved(){try{const saved=JSON.parse(localStorage.getItem('codeyau-files')||'null');if(!Array.isArray(saved)||!saved.length)return;files=saved.filter(f=>f&&f.name&&typeof f.content==='string').map(f=>({name:f.name,language:modes[f.language]?f.language:detect(f.name),content:f.content}));current=Math.max(0,Math.min(Number(localStorage.getItem('codeyau-current')||0),files.length-1))}catch{}}
+function updateStatus(){const f=files[current];if(!f||!editor)return;const cur=editor.getCursor(),text=f.content;refs.statusFile.textContent=f.name;refs.statusLang.textContent=f.language==='javascript'?'JavaScript':f.language==='cpp'?'C++':f.language==='html'?'HTML / CSS / JS':'Python 3';refs.statusPos.textContent=`Ln ${cur.line+1}, Col ${cur.ch+1}`;const lines=text.split('\n').length,words=text.trim()?text.trim().split(/\s+/).length:0;refs.statusStats.textContent=`${lines} lines · ${words} words`}
+function render(){refs.files.replaceChildren();files.forEach((f,i)=>{const row=document.createElement('div');row.className=`flex items-center justify-between px-3 py-2 rounded-lg text-sm cursor-pointer ${i===current?'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30':'text-slate-400 hover:bg-slate-700/50'}`;const name=document.createElement('span');name.className='truncate flex-1';name.textContent=f.name;name.onclick=()=>switchFile(i);const del=document.createElement('button');del.className='text-slate-500 hover:text-red-400 px-1';del.innerHTML='<i class="fa-solid fa-xmark"></i>';del.onclick=e=>{e.stopPropagation();deleteFile(i)};if(files.length===1)del.classList.add('invisible');row.append(name,del);refs.files.appendChild(row)});refs.tabs.replaceChildren();files.forEach((f,i)=>{const t=document.createElement('button');t.className=`px-3 py-1.5 text-xs rounded-t-lg border-t-2 whitespace-nowrap ${i===current?'bg-slate-950 text-slate-200 border-indigo-500':'bg-slate-900/60 text-slate-400 border-transparent'}`;t.textContent=f.name;t.onclick=()=>switchFile(i);refs.tabs.appendChild(t)});updateStatus()}
+function switchFile(i){if(i<0||i>=files.length||i===current)return;sync();current=i;editor.setOption('mode',modes[files[current].language]);editor.setValue(files[current].content);refs.lang.value=files[current].language;editor.clearHistory();render();persist();updateView()}
+function addFile(){const raw=prompt('File name:',`file${files.length+1}.py`);if(!raw)return;const name=raw.trim();if(!/^[A-Za-z0-9._-]+$/.test(name))return toast('Invalid file name','error');if(files.some(f=>f.name.toLowerCase()===name.toLowerCase()))return toast('File already exists','error');const language=detect(name);files.push({name,language,content:templates[language]||''});current=files.length-1;editor.setOption('mode',modes[language]);editor.setValue(files[current].content);refs.lang.value=language;render();persist();updateView()}
+function deleteFile(i){if(files.length===1)return;if(!confirm(`Delete ${files[i].name}?`))return;files.splice(i,1);current=Math.min(current,files.length-1);editor.setOption('mode',modes[files[current].language]);editor.setValue(files[current].content);refs.lang.value=files[current].language;render();persist();updateView()}
+function changeLang(lang){sync();const f=files[current],base=f.name.includes('.')?f.name.slice(0,f.name.lastIndexOf('.')):f.name;if(confirm('Load the starter template for this language?'))f.content=templates[lang]||'';f.language=lang;f.name=`${base}.${exts[lang]}`;editor.setOption('mode',modes[lang]);editor.setValue(f.content);render();persist();updateView()}
+function resetWorkspace(){if(!confirm('Reset the whole workspace?'))return;files=[{name:'main.py',language:'python',content:templates.python}];current=0;editor.setOption('mode','python');editor.setValue(templates.python);localStorage.removeItem('codeyau-files');render();persist();updateView();toast('Workspace reset')}
+function clear(){refs.console.innerHTML='<div class="text-slate-500 italic">Console cleared.</div>';if(!refs.preview.classList.contains('hidden')){refs.preview.classList.add('hidden');refs.console.classList.remove('hidden')}}
+function log(text,type='info'){const el=document.createElement('pre');el.className=`whitespace-pre-wrap m-0 ${type==='error'?'text-red-400':type==='success'?'text-emerald-400':'text-slate-300'}`;el.textContent=String(text);refs.console.appendChild(el);refs.console.scrollTop=refs.console.scrollHeight}
+async function run(){sync();const f=files[current],code=f.content;refs.run.disabled=true;refs.run.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i><span>Running...</span>';refs.console.innerHTML='';log(`▶ Running ${f.name}...`);try{if(f.language==='javascript')await runJS(code);else if(f.language==='python')await runPy(code);else if(f.language==='html')runHTML(code);else log(`${f.language==='cpp'?'C++':'Java'} compilation needs a server-side compiler/API. GitHub Pages alone cannot execute it.`,'error')}catch(e){log(e?.stack||e?.message||String(e),'error')}finally{refs.run.disabled=false;refs.run.innerHTML='<i class="fa-solid fa-play text-xs"></i><span>Run</span>'}}
+function runJS(code){return new Promise(resolve=>{const token=`${Date.now()}_${Math.random()}`,frame=document.createElement('iframe');frame.style.display='none';document.body.appendChild(frame);const finish=()=>{window.removeEventListener('message',onMessage);frame.remove();resolve()};const onMessage=e=>{if(e.source!==frame.contentWindow||e.data?.token!==token)return;if(e.data.type==='log')log(e.data.value);if(e.data.type==='error')log(e.data.value,'error');if(e.data.type==='done')finish()};window.addEventListener('message',onMessage);const safe=code.replace(/<\/script/gi,'<\\/script');frame.srcdoc=`<!doctype html><script>(function(){const token=${JSON.stringify(token)};const send=(type,value)=>parent.postMessage({token,type,value},'*');const fmt=v=>{try{return typeof v==='string'?v:JSON.stringify(v,null,2)}catch{return String(v)}};console.log=(...a)=>send('log',a.map(fmt).join(' '));console.error=(...a)=>send('error',a.map(fmt).join(' '));try{${safe}}catch(e){send('error',e.stack||e.message||String(e))}finally{send('done','')}})()<\/script>`})}
+function loadPyRuntime(){if(window.pyodide)return Promise.resolve(window.pyodide);if(pythonRuntime)return pythonRuntime;pythonRuntime=new Promise((resolve,reject)=>{const finish=()=>{if(typeof window.loadPyodide!=='function')return reject(new Error('Python runtime failed to initialize.'));window.loadPyodide({indexURL:'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/'}).then(resolve,reject)};if(typeof window.loadPyodide==='function')return finish();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js';s.onload=finish;s.onerror=()=>reject(new Error('Could not load Python runtime from CDN.'));document.head.appendChild(s)});return pythonRuntime}
+async function runPy(code,stdin){const py=await loadPyRuntime();py.setStdin({stdin:()=>refs.stdin.value||stdin||''});py.setStdout({batched:t=>log(t)});py.setStderr({batched:t=>log(t,'error')});await py.runPythonAsync(code);log('✓ Python execution completed.','success')}
+function runHTML(code){refs.preview.classList.remove('hidden');refs.console.classList.add('hidden');refs.previewToggle.classList.remove('hidden');refs.previewToggle.textContent='Console';refs.previewFrame.srcdoc=code}
+function updateView(){const isHTML=files[current].language==='html';refs.previewToggle.classList.toggle('hidden',!isHTML);if(!isHTML){refs.preview.classList.add('hidden');refs.console.classList.remove('hidden')}else{refs.preview.classList.remove('hidden');refs.console.classList.add('hidden');refs.previewToggle.textContent='Console'}}
+function togglePreview(){const showing=!refs.preview.classList.contains('hidden');refs.preview.classList.toggle('hidden',showing);refs.console.classList.toggle('hidden',!showing);refs.previewToggle.textContent=showing?'Preview':'Console'}
+function save(){sync();persist();toast('Project saved locally')}
+function downloadText(name,content,type='text/plain'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function exportCurrent(){sync();const f=files[current];downloadText(f.name,f.content,'text/plain;charset=utf-8');toast('File exported')}
+function exportWorkspace(){sync();downloadText('codeyau-project.json',JSON.stringify({name:'codeyau-project',version:1,files},null,2),'application/json');toast('Workspace exported')}
+function importWorkspace(file){const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);if(!Array.isArray(data.files)||!data.files.length)throw new Error('Invalid workspace file');files=data.files.map(f=>({name:f.name||'file.txt',language:modes[f.language]?f.language:detect(f.name||''),content:String(f.content||'')}));current=0;editor.setOption('mode',modes[files[0].language]);editor.setValue(files[0].content);refs.lang.value=files[0].language;render();persist();updateView();toast('Workspace imported')}catch(e){toast(e.message||'Import failed','error')}};reader.readAsText(file)}
+function searchInFile(){const q=prompt('Find in current file:');if(!q)return;const text=editor.getValue(),index=text.toLowerCase().indexOf(q.toLowerCase());if(index<0)return toast('Text not found','error');const from=editor.posFromIndex(index),to=editor.posFromIndex(index+q.length);editor.setSelection(from,to);editor.focus();toast('Found')}
+function share(){sync();const payload=btoa(unescape(encodeURIComponent(JSON.stringify({version:1,file:files[current]})))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');const url=`${location.origin}${location.pathname}#share=${payload}`;history.replaceState(null,'',`#share=${payload}`);const copy=navigator.clipboard?.writeText(url);if(copy)copy.then(()=>toast('Share link copied')).catch(()=>prompt('Copy share link:',url));else prompt('Copy share link:',url)}
+function loadShared(){if(!location.hash.startsWith('#share='))return;try{const raw=location.hash.slice(7).replace(/-/g,'+').replace(/_/g,'/');const padded=raw+'='.repeat((4-raw.length%4)%4);const data=JSON.parse(decodeURIComponent(escape(atob(padded))));if(!data.file?.content)return;files=[{name:data.file.name||'shared.txt',language:modes[data.file.language]?data.file.language:detect(data.file.name||''),content:data.file.content}];current=0;editor.setOption('mode',modes[files[0].language]);editor.setValue(files[0].content);refs.lang.value=files[0].language;render();updateView();toast('Shared file loaded')}catch{toast('Invalid share link','error')}}
+function applyTheme(){refs.body.classList.toggle('light-mode',light);refs.body.classList.toggle('bg-slate-900',!light);refs.body.classList.toggle('bg-slate-50',light);refs.body.classList.toggle('text-slate-100',!light);refs.body.classList.toggle('text-slate-800',light);refs.header.classList.toggle('bg-slate-800',!light);refs.header.classList.toggle('bg-white',light);refs.themeIcon.className=light?'fa-solid fa-moon text-amber-400':'fa-solid fa-sun text-yellow-400';if(editor)editor.setOption('theme',light?'eclipse':'dracula');localStorage.setItem('codeyau-theme',light?'light':'dark')}
+refs.sidebarBtn.onclick=()=>refs.sidebar.classList.toggle('sidebar-collapsed');refs.newFile.onclick=addFile;refs.resetAll.onclick=resetWorkspace;refs.importBtn.onclick=()=>refs.importInput.click();refs.importInput.onchange=e=>{if(e.target.files[0])importWorkspace(e.target.files[0]);e.target.value=''};refs.exportAll.onclick=exportWorkspace;refs.download.onclick=exportCurrent;refs.search.onclick=searchInFile;refs.lang.onchange=e=>changeLang(e.target.value);refs.theme.onclick=()=>{light=!light;applyTheme()};refs.save.onclick=save;refs.share.onclick=share;refs.run.onclick=run;refs.clear.onclick=clear;refs.previewToggle.onclick=togglePreview;
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();save()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='f'){e.preventDefault();searchInFile()}if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();run()}});
+window.addEventListener('beforeunload',()=>{sync();persist()});loadSaved();window.addEventListener('DOMContentLoaded',()=>{editor=CodeMirror.fromTextArea(refs.textarea,{mode:modes[files[current].language],theme:light?'eclipse':'dracula',lineNumbers:true,autoCloseBrackets:true,matchBrackets:true,styleActiveLine:true,indentUnit:4,tabSize:4,indentWithTabs:false,lineWrapping:false,extraKeys:{'Ctrl-Enter':run,'Cmd-Enter':run,'Ctrl-S':save,'Cmd-S':save}});editor.on('change',()=>{sync();updateStatus();clearTimeout(saveTimer);saveTimer=setTimeout(persist,400)});editor.on('cursorActivity',updateStatus);refs.lang.value=files[current].language;render();applyTheme();updateView();loadShared()});
 })();
 </script>
 </body>
