@@ -11,7 +11,7 @@
     theme: 'codeyau-theme',
     users: 'codeyau-users',
     session: 'codeyau-session',
-    model: 'codeyau-gemini-model'
+    model: 'codeyau-gemini-model-v2'
   };
   const templates = {
     python: 'a = 384 + 347\nprint(a)',
