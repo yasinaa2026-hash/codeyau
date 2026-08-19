@@ -3,21 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>codeyau</title>
-    <!-- Tailwind CSS CDN -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="codeyau - browser-based online code editor">
+    <title>codeyau — Online IDE</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter & Fira Code -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    
-    <!-- CodeMirror CSS & Theme & Modes -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/eclipse.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.css">
-    
-    <!-- CodeMirror Core & Languages -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
@@ -25,8 +21,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
-    
-    <!-- CodeMirror Addons for VS Code Experience -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
@@ -38,13 +32,15 @@
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
-                        mono: ['Fira Code', 'monospace'],
-                    },
+                        mono: ['Fira Code', 'monospace']
+                    }
                 }
             }
-        }
+        };
     </script>
+
     <style>
+        html, body { min-height: 100%; }
         .CodeMirror {
             height: 100% !important;
             font-family: 'Fira Code', monospace !important;
@@ -52,430 +48,626 @@
             line-height: 1.6;
         }
         .CodeMirror-gutters {
-            background-color: #0f172a !important;
+            background: #0f172a !important;
             border-right: 1px solid #1e293b !important;
         }
-        .dark .CodeMirror-gutters {
-            background-color: #090d16 !important;
-            border-right: 1px solid #1e293b !important;
+        .CodeMirror-linenumber { color: #64748b !important; }
+        .CodeMirror-activeline-background { background: rgba(99, 102, 241, 0.08) !important; }
+        .light-mode .CodeMirror-gutters {
+            background: #f8fafc !important;
+            border-right-color: #cbd5e1 !important;
         }
-        .CodeMirror-linenumber {
-            color: #64748b !important;
-        }
-        .CodeMirror-activeline-background {
-            background: rgba(99, 102, 241, 0.08) !important;
+        .light-mode .CodeMirror-linenumber { color: #64748b !important; }
+        .light-mode .CodeMirror-activeline-background { background: rgba(99, 102, 241, 0.06) !important; }
+        #preview-frame { width: 100%; height: 100%; border: 0; background: white; }
+        .resizer { cursor: col-resize; user-select: none; }
+        @media (max-width: 1023px) {
+            .desktop-only { display: none !important; }
         }
     </style>
 </head>
-<body class="h-full bg-slate-900 text-slate-100 flex flex-col font-sans overflow-hidden">
+<body id="app-body" class="h-full bg-slate-900 text-slate-100 flex flex-col font-sans overflow-hidden">
 
-    <header class="bg-slate-800 border-b border-slate-700 flex items-center justify-between px-4 py-2.5 shrink-0 select-none z-20">
-        <div class="flex items-center space-x-3">
-            <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-lg flex items-center justify-center">
-                <i class="fa-solid fa-code text-lg"></i>
-            </div>
-            <div>
-                <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">OnlineIDE Pro</span>
-                <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full ml-2 font-medium">VS Code Interactive Engine</span>
+<header id="app-header" class="bg-slate-800 border-b border-slate-700 flex items-center justify-between gap-3 px-4 py-2.5 shrink-0 select-none z-20">
+    <div class="flex items-center gap-3 min-w-0">
+        <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-lg shrink-0 flex items-center justify-center">
+            <i class="fa-solid fa-code text-lg"></i>
+        </div>
+        <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">codeyau</span>
+                <span class="text-[11px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-medium">Browser IDE</span>
             </div>
         </div>
+    </div>
 
-        <div class="flex items-center space-x-3">
-            <div class="relative">
-                <select id="language-select" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
-                    <option value="python">Python 3</option>
-                    <option value="javascript">JavaScript (Node.js)</option>
-                    <option value="cpp">C++ (GCC)</option>
-                    <option value="java">Java 17</option>
-                    <option value="html">HTML / CSS / JS</option>
-                </select>
-            </div>
+    <div class="flex items-center gap-2 shrink-0">
+        <select id="language-select" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+            <option value="python">Python 3</option>
+            <option value="javascript">JavaScript</option>
+            <option value="cpp">C++</option>
+            <option value="java">Java</option>
+            <option value="html">HTML / CSS / JS</option>
+        </select>
+        <button id="theme-toggle" class="p-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition" title="Toggle theme" aria-label="Toggle theme">
+            <i class="fa-solid fa-sun text-sm" id="theme-icon"></i>
+        </button>
+        <button id="save-btn" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition">
+            <i class="fa-solid fa-floppy-disk"></i><span>Save</span>
+        </button>
+        <button id="share-btn" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition">
+            <i class="fa-solid fa-share-nodes"></i><span>Share</span>
+        </button>
+        <button id="run-btn" class="flex items-center gap-2 px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg shadow-lg shadow-emerald-900/30 transition transform active:scale-95">
+            <i class="fa-solid fa-play text-xs"></i><span>Run</span>
+        </button>
+    </div>
+</header>
 
-            <button id="theme-toggle" class="p-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition" title="Toggle Theme">
-                <i class="fa-solid fa-sun text-sm" id="theme-icon"></i>
-            </button>
-
-            <button onclick="saveProject()" class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition">
-                <i class="fa-solid fa-floppy-disk"></i>
-                <span>Save</span>
-            </button>
-
-            <button onclick="shareProject()" class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition">
-                <i class="fa-solid fa-share-nodes"></i>
-                <span>Share</span>
-            </button>
-
-            <button id="run-btn" onclick="runCode()" class="flex items-center space-x-2 px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-lg shadow-lg shadow-emerald-900/30 transition transform active:scale-95">
-                <i class="fa-solid fa-play text-xs"></i>
-                <span>Run</span>
+<div class="flex-1 flex overflow-hidden relative">
+    <aside id="sidebar" class="w-64 bg-slate-800/90 border-r border-slate-700 flex flex-col shrink-0 transition-all duration-300">
+        <div class="p-3 border-b border-slate-700 flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Project Files</span>
+            <button id="new-file-btn" class="text-slate-400 hover:text-white text-sm p-1 rounded transition" title="New file">
+                <i class="fa-solid fa-plus"></i>
             </button>
         </div>
-    </header>
+        <div id="file-list" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
+        <div class="p-3 border-t border-slate-700 bg-slate-800/50 text-xs text-slate-400 flex items-center justify-between gap-2">
+            <span class="truncate">Workspace: <strong class="text-slate-200">codeyau</strong></span>
+            <button id="reset-btn" class="hover:text-red-400 transition shrink-0" title="Reset current file">
+                <i class="fa-solid fa-rotate-right"></i>
+            </button>
+        </div>
+    </aside>
 
-    <div class="flex-1 flex overflow-hidden relative">
-        
-        <aside id="sidebar" class="w-64 bg-slate-800/90 border-r border-slate-700 flex flex-col shrink-0 transition-all duration-300">
-            <div class="p-3 border-b border-slate-700 flex items-center justify-between">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Project Files</span>
-                <button onclick="addNewFile()" class="text-slate-400 hover:text-white text-sm p-1 rounded transition" title="New File">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
+    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-slate-950">
+        <section id="editor-panel" class="flex-1 min-w-0 flex flex-col border-b lg:border-b-0 lg:border-r border-slate-800 relative">
+            <div id="editor-tabs" class="bg-slate-900 border-b border-slate-800 flex items-center overflow-x-auto px-2 py-1 gap-1 shrink-0"></div>
+            <div id="editor-container" class="flex-1 w-full min-h-0 relative overflow-hidden">
+                <textarea id="code-textarea" aria-label="Code editor"></textarea>
             </div>
-            <div id="file-list" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
-            <div class="p-3 border-t border-slate-700 bg-slate-800/50 text-xs text-slate-400 flex items-center justify-between">
-                <span>Workspace: <strong class="text-slate-200">Interactive VS</strong></span>
-                <button onclick="resetWorkspace()" class="hover:text-red-400 transition" title="Reset Code"><i class="fa-solid fa-rotate-right"></i></button>
-            </div>
-        </aside>
+        </section>
 
-        <main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-slate-950">
-            
-            <div class="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-slate-800 relative">
-                <div id="editor-tabs" class="bg-slate-900 border-b border-slate-800 flex items-center overflow-x-auto px-2 py-1 space-x-1 shrink-0"></div>
-                <div id="editor-container" class="flex-1 w-full h-full relative overflow-hidden">
-                    <textarea id="code-textarea"></textarea>
+        <section id="output-panel" class="w-full lg:w-[25rem] bg-slate-900 flex flex-col shrink-0 min-h-0">
+            <div class="bg-slate-800 px-4 py-2.5 border-b border-slate-700 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-terminal text-indigo-400 text-xs"></i>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Output / Console</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="preview-toggle" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded bg-slate-700/50 transition hidden" title="Toggle preview">Preview</button>
+                    <button id="clear-btn" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded bg-slate-700/50 transition">Clear</button>
                 </div>
             </div>
 
-            <div class="w-full lg:w-96 bg-slate-900 flex flex-col shrink-0">
-                <div class="bg-slate-800 px-4 py-2.5 border-b border-slate-700 flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <i class="fa-solid fa-terminal text-indigo-400 text-xs"></i>
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Output / Console</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="clearConsole()" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded bg-slate-700/50 transition">Clear</button>
-                    </div>
-                </div>
-
-                <div id="console-output" class="flex-1 p-4 font-mono text-xs overflow-y-auto text-slate-300 space-y-2 bg-slate-950/60 select-text">
-                    <div class="text-slate-500 italic">Ready to run code. Click "Run" or press Ctrl+Enter.</div>
-                </div>
-
-                <div class="p-3 border-t border-slate-800 bg-slate-900">
-                    <label for="stdin-input" class="block text-xs font-medium text-slate-400 mb-1">Standard Input (stdin):</label>
-                    <input type="text" id="stdin-input" placeholder="Optional input for your program..." class="w-full bg-slate-950 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700 focus:outline-none focus:border-indigo-500">
-                </div>
+            <div id="console-output" class="flex-1 min-h-0 p-4 font-mono text-xs overflow-y-auto text-slate-300 space-y-2 bg-slate-950/60 select-text">
+                <div class="text-slate-500 italic">Ready. Run your program with Ctrl+Enter.</div>
             </div>
 
-        </main>
-    </div>
+            <div id="preview-container" class="hidden flex-1 min-h-0 bg-white">
+                <iframe id="preview-frame" title="HTML preview" sandbox="allow-scripts"></iframe>
+            </div>
 
-    <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 text-slate-100 px-4 py-3 rounded-xl shadow-2xl border border-slate-700 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-3 z-50">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
-        <span id="toast-msg" class="text-sm font-medium">Notification message</span>
-    </div>
+            <div class="p-3 border-t border-slate-800 bg-slate-900">
+                <label for="stdin-input" class="block text-xs font-medium text-slate-400 mb-1">Standard Input (stdin)</label>
+                <input type="text" id="stdin-input" placeholder="Optional input for your program..." class="w-full bg-slate-950 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700 focus:outline-none focus:border-indigo-500">
+            </div>
+        </section>
+    </main>
+</div>
 
-    <script>
-        const templates = {
-            python: `a = 384 + 347\nprint(a)\n\ndef greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("Developer"))`,
-            javascript: `// JavaScript Interactive Template\nconst calculateSum = (arr) => {\n    return arr.reduce((acc, val) => acc + val, 0);\n};\n\nconst numbers = [10, 20, 30, 40];\nconsole.log("Array:", numbers);\nconsole.log("Sum:", calculateSum(numbers));`,
-            cpp: `// C++ Template\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello from VS Code Interactive C++!" << endl;\n    return 0;\n}`,
-            java: `// Java Template\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java 17!");\n    }\n}`,
-            html: `<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <title>Preview</title>\n</head>\n<body>\n    <h1>Interactive HTML Preview</h1>\n</body>\n</html>`
-        };
+<div id="toast" class="fixed bottom-5 right-5 bg-slate-800 text-slate-100 px-4 py-3 rounded-xl shadow-2xl border border-slate-700 translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3 z-50 pointer-events-none">
+    <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toast-msg" class="text-sm font-medium">Notification</span>
+</div>
 
-        const modeMap = {
-            python: 'python',
-            javascript: 'javascript',
-            cpp: 'text/x-c++src',
-            java: 'text/x-java',
-            html: 'htmlmixed'
-        };
+<script>
+(() => {
+    'use strict';
 
-        let files = [
-            { name: 'main.py', language: 'python', content: templates.python }
-        ];
-        let currentFileIndex = 0;
-        let cmEditor = null;
+    const templates = {
+        python: `a = 384 + 347\nprint(a)\n\ndef greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("Developer"))`,
+        javascript: `// JavaScript Template\nconst numbers = [10, 20, 30, 40];\nconst total = numbers.reduce((sum, value) => sum + value, 0);\nconsole.log("Numbers:", numbers);\nconsole.log("Total:", total);`,
+        cpp: `#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello from C++!" << endl;\n    return 0;\n}`,
+        java: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java!");\n    }\n}`,
+        html: `<!doctype html>\n<html lang="en">\n<head>\n  <meta charset="utf-8">\n  <title>Preview</title>\n  <style>body{font-family:system-ui;padding:2rem}h1{color:#4f46e5}</style>\n</head>\n<body>\n  <h1>Hello, codeyau!</h1>\n  <p>Edit this file and run it to update the preview.</p>\n</body>\n</html>`
+    };
 
-        const languageSelect = document.getElementById('language-select');
-        const fileList = document.getElementById('file-list');
-        const editorTabs = document.getElementById('editor-tabs');
-        const consoleOutput = document.getElementById('console-output');
-        const runBtn = document.getElementById('run-btn');
+    const modeMap = {
+        python: 'python',
+        javascript: 'javascript',
+        cpp: 'text/x-c++src',
+        java: 'text/x-java',
+        html: 'htmlmixed'
+    };
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const textarea = document.getElementById('code-textarea');
-            textarea.value = files[currentFileIndex].content;
+    const extMap = { python: 'py', javascript: 'js', cpp: 'cpp', java: 'java', html: 'html' };
 
-            cmEditor = CodeMirror.fromTextArea(textarea, {
-                mode: modeMap[files[currentFileIndex].language],
-                theme: 'dracula',
-                lineNumbers: true,
-                autoCloseBrackets: true,
-                matchBrackets: true,
-                styleActiveLine: true,
-                indentUnit: 4,
-                tabSize: 4,
-                indentWithTabs: false,
-                lineWrapping: true
+    const refs = {
+        body: document.getElementById('app-body'),
+        header: document.getElementById('app-header'),
+        language: document.getElementById('language-select'),
+        themeToggle: document.getElementById('theme-toggle'),
+        themeIcon: document.getElementById('theme-icon'),
+        save: document.getElementById('save-btn'),
+        share: document.getElementById('share-btn'),
+        run: document.getElementById('run-btn'),
+        newFile: document.getElementById('new-file-btn'),
+        reset: document.getElementById('reset-btn'),
+        clear: document.getElementById('clear-btn'),
+        fileList: document.getElementById('file-list'),
+        tabs: document.getElementById('editor-tabs'),
+        textarea: document.getElementById('code-textarea'),
+        console: document.getElementById('console-output'),
+        stdin: document.getElementById('stdin-input'),
+        previewToggle: document.getElementById('preview-toggle'),
+        previewContainer: document.getElementById('preview-container'),
+        previewFrame: document.getElementById('preview-frame'),
+        toast: document.getElementById('toast'),
+        toastIcon: document.getElementById('toast-icon'),
+        toastMsg: document.getElementById('toast-msg')
+    };
+
+    let files = [{ name: 'main.py', language: 'python', content: templates.python }];
+    let currentFileIndex = 0;
+    let editor = null;
+    let pyodidePromise = null;
+    let saveTimer = null;
+    let isLight = localStorage.getItem('codeyau-theme') === 'light';
+
+    function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, char => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+        })[char]);
+    }
+
+    function showToast(message, type = 'success') {
+        refs.toastMsg.textContent = message;
+        refs.toastIcon.className = type === 'error'
+            ? 'fa-solid fa-circle-exclamation text-red-400'
+            : 'fa-solid fa-circle-check text-emerald-400';
+        refs.toast.classList.remove('translate-y-20', 'opacity-0');
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => refs.toast.classList.add('translate-y-20', 'opacity-0'), 2600);
+    }
+
+    function persist() {
+        try {
+            localStorage.setItem('codeyau-files', JSON.stringify(files));
+            localStorage.setItem('codeyau-current-file', String(currentFileIndex));
+        } catch (error) {
+            showToast('Browser storage is unavailable.', 'error');
+        }
+    }
+
+    function loadSavedWorkspace() {
+        try {
+            const raw = localStorage.getItem('codeyau-files');
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            if (!Array.isArray(parsed) || !parsed.length) return;
+            files = parsed.filter(file => file && typeof file.name === 'string' && typeof file.content === 'string')
+                .map(file => ({
+                    name: file.name,
+                    language: modeMap[file.language] ? file.language : detectLanguage(file.name),
+                    content: file.content
+                }));
+            if (!files.length) files = [{ name: 'main.py', language: 'python', content: templates.python }];
+            const savedIndex = Number(localStorage.getItem('codeyau-current-file'));
+            currentFileIndex = Number.isInteger(savedIndex) && savedIndex >= 0 && savedIndex < files.length ? savedIndex : 0;
+        } catch (_) {
+            files = [{ name: 'main.py', language: 'python', content: templates.python }];
+            currentFileIndex = 0;
+        }
+    }
+
+    function detectLanguage(name) {
+        const ext = name.split('.').pop().toLowerCase();
+        if (ext === 'js' || ext === 'mjs') return 'javascript';
+        if (ext === 'cpp' || ext === 'cc' || ext === 'cxx' || ext === 'c') return 'cpp';
+        if (ext === 'java') return 'java';
+        if (ext === 'html' || ext === 'htm') return 'html';
+        return 'python';
+    }
+
+    function updateEditorFromFile() {
+        const file = files[currentFileIndex];
+        if (!file || !editor) return;
+        editor.setOption('mode', modeMap[file.language]);
+        editor.setValue(file.content);
+        refs.language.value = file.language;
+        editor.clearHistory();
+        renderFileList();
+        renderTabs();
+        updatePreviewVisibility();
+    }
+
+    function renderFileList() {
+        refs.fileList.replaceChildren();
+        files.forEach((file, index) => {
+            const row = document.createElement('div');
+            row.className = `flex items-center justify-between px-3 py-2 rounded-lg text-sm cursor-pointer transition ${
+                index === currentFileIndex
+                    ? 'bg-indigo-600/20 text-indigo-300 font-medium border border-indigo-500/30'
+                    : 'text-slate-400 hover:bg-slate-700/50 hover:text-slate-200'
+            }`;
+            row.title = file.name;
+            row.addEventListener('click', () => switchFile(index));
+
+            const label = document.createElement('div');
+            label.className = 'flex items-center gap-2 min-w-0';
+            const icon = document.createElement('i');
+            icon.className = 'fa-regular fa-file-code text-xs';
+            const text = document.createElement('span');
+            text.className = 'truncate';
+            text.textContent = file.name;
+            label.append(icon, text);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'text-slate-500 hover:text-red-400 text-xs px-1.5';
+            deleteButton.title = `Delete ${file.name}`;
+            deleteButton.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            deleteButton.addEventListener('click', event => {
+                event.stopPropagation();
+                deleteFile(index);
             });
+            if (files.length <= 1) deleteButton.classList.add('invisible');
 
-            cmEditor.on('change', (instance) => {
-                files[currentFileIndex].content = instance.getValue();
-            });
-
-            cmEditor.setOption("extraKeys", {
-                "Ctrl-Enter": function(cm) { runCode(); },
-                "Cmd-Enter": function(cm) { runCode(); }
-            });
-
-            renderFileList();
-            renderTabs();
+            row.append(label, deleteButton);
+            refs.fileList.appendChild(row);
         });
+    }
 
-        languageSelect.addEventListener('change', (e) => {
-            const lang = e.target.value;
-            files[currentFileIndex].language = lang;
-            files[currentFileIndex].content = templates[lang] || '// Write code here';
-            
-            const extMap = { python: 'py', javascript: 'js', cpp: 'cpp', java: 'java', html: 'html' };
-            const base = files[currentFileIndex].name.split('.')[0];
-            files[currentFileIndex].name = `${base}.${extMap[lang]}`;
-
-            if (cmEditor) {
-                cmEditor.setOption("mode", modeMap[lang]);
-                cmEditor.setValue(files[currentFileIndex].content);
-            }
-
-            languageSelect.value = lang;
-            renderFileList();
-            renderTabs();
+    function renderTabs() {
+        refs.tabs.replaceChildren();
+        files.forEach((file, index) => {
+            const tab = document.createElement('button');
+            tab.type = 'button';
+            tab.className = `flex items-center gap-2 px-3 py-1.5 text-xs rounded-t-lg cursor-pointer border-t-2 transition whitespace-nowrap ${
+                index === currentFileIndex
+                    ? 'bg-slate-950 text-slate-200 border-indigo-500 font-medium'
+                    : 'bg-slate-900/60 text-slate-400 border-transparent hover:text-slate-200'
+            }`;
+            tab.textContent = file.name;
+            tab.addEventListener('click', () => switchFile(index));
+            refs.tabs.appendChild(tab);
         });
+    }
 
-        function renderFileList() {
-            fileList.innerHTML = '';
-            files.forEach((file, index) => {
-                const isSelected = index === currentFileIndex;
-                const div = document.createElement('div');
-                div.className = `flex items-center justify-between px-3 py-2 rounded-lg text-sm cursor-pointer transition ${isSelected ? 'bg-indigo-600/20 text-indigo-300 font-medium border border-indigo-500/30' : 'text-slate-400 hover:bg-slate-700/50 hover:text-slate-200'}`;
-                div.innerHTML = `
-                    <div class="flex items-center space-x-2 truncate" onclick="switchFile(${index})">
-                        <i class="fa-regular fa-file-code text-xs"></i>
-                        <span class="truncate">${file.name}</span>
-                    </div>
-                    ${files.length > 1 ? `<button onclick="event.stopPropagation(); deleteFile(${index})" class="text-slate-500 hover:text-red-400 text-xs px-1.5"><i class="fa-solid fa-xmark"></i></button>` : ''}
-                `;
-                fileList.appendChild(div);
-            });
+    function switchFile(index) {
+        if (index < 0 || index >= files.length || index === currentFileIndex) return;
+        syncCurrentFile();
+        currentFileIndex = index;
+        updateEditorFromFile();
+        persist();
+        clearConsole(true);
+    }
+
+    function syncCurrentFile() {
+        if (editor && files[currentFileIndex]) files[currentFileIndex].content = editor.getValue();
+    }
+
+    function addNewFile() {
+        const suggested = `file${files.length + 1}.py`;
+        const name = prompt('Enter a file name:', suggested);
+        if (!name) return;
+        const trimmed = name.trim();
+        if (!/^[A-Za-z0-9._-]+$/.test(trimmed)) {
+            showToast('Use only letters, numbers, dots, dashes or underscores.', 'error');
+            return;
         }
-
-        function renderTabs() {
-            editorTabs.innerHTML = '';
-            files.forEach((file, index) => {
-                const isSelected = index === currentFileIndex;
-                const tab = document.createElement('div');
-                tab.className = `flex items-center space-x-2 px-3 py-1.5 text-xs rounded-t-lg cursor-pointer border-t-2 transition ${isSelected ? 'bg-slate-950 text-slate-200 border-indigo-500 font-medium' : 'bg-slate-900/60 text-slate-400 border-transparent hover:text-slate-200'}`;
-                tab.innerHTML = `<span onclick="switchFile(${index})">${file.name}</span>`;
-                editorTabs.appendChild(tab);
-            });
+        if (files.some(file => file.name.toLowerCase() === trimmed.toLowerCase())) {
+            showToast('A file with that name already exists.', 'error');
+            return;
         }
+        const language = detectLanguage(trimmed);
+        files.push({ name: trimmed, language, content: templates[language] || '' });
+        currentFileIndex = files.length - 1;
+        updateEditorFromFile();
+        persist();
+    }
 
-        function switchFile(index) {
-            currentFileIndex = index;
-            const file = files[index];
-            languageSelect.value = file.language;
+    function deleteFile(index) {
+        if (files.length <= 1) return;
+        if (!confirm(`Delete ${files[index].name}?`)) return;
+        files.splice(index, 1);
+        currentFileIndex = Math.min(currentFileIndex, files.length - 1);
+        updateEditorFromFile();
+        persist();
+    }
 
-            if (cmEditor) {
-                cmEditor.setOption("mode", modeMap[file.language]);
-                cmEditor.setValue(file.content);
-            }
-
-            renderFileList();
-            renderTabs();
+    function changeLanguage(language) {
+        syncCurrentFile();
+        const file = files[currentFileIndex];
+        const currentBase = file.name.includes('.') ? file.name.slice(0, file.name.lastIndexOf('.')) : file.name;
+        file.language = language;
+        file.name = `${currentBase}.${extMap[language]}`;
+        if (confirm('Replace the current file with the selected language template?')) {
+            file.content = templates[language];
         }
+        updateEditorFromFile();
+        persist();
+    }
 
-        function addNewFile() {
-            const name = prompt("Enter file name (e.g. script.js, utils.py):", `file${files.length + 1}.py`);
-            if (!name) return;
-            const ext = name.split('.').pop().toLowerCase();
-            let lang = 'python';
-            if (ext === 'js') lang = 'javascript';
-            else if (ext === 'cpp' || ext === 'cc') lang = 'cpp';
-            else if (ext === 'java') lang = 'java';
-            else if (ext === 'html') lang = 'html';
+    function resetCurrentFile() {
+        const file = files[currentFileIndex];
+        if (!confirm(`Reset ${file.name} to its default template?`)) return;
+        file.content = templates[file.language] || '';
+        updateEditorFromFile();
+        persist();
+        showToast('File reset.');
+    }
 
-            files.push({ name, language: lang, content: templates[lang] || '// New file' });
-            switchFile(files.length - 1);
-        }
+    function clearConsole(quiet = false) {
+        refs.console.innerHTML = '<div class="text-slate-500 italic">Console cleared.</div>';
+        if (!quiet) showToast('Console cleared.');
+    }
 
-        function deleteFile(index) {
-            if (files.length <= 1) return;
-            files.splice(index, 1);
-            if (currentFileIndex >= files.length) {
-                currentFileIndex = files.length - 1;
-            }
-            switchFile(currentFileIndex);
-        }
+    function appendConsole(text, type = 'info') {
+        const line = document.createElement('div');
+        line.className = type === 'error' ? 'text-red-400' : type === 'success' ? 'text-emerald-400' : 'text-slate-300';
+        line.textContent = text;
+        refs.console.appendChild(line);
+        refs.console.scrollTop = refs.console.scrollHeight;
+    }
 
-        function resetWorkspace() {
-            if (confirm("Reset current file code to default template?")) {
-                const lang = files[currentFileIndex].language;
-                files[currentFileIndex].content = templates[lang] || '';
-                cmEditor.setValue(files[currentFileIndex].content);
-                showToast("Workspace reset to default template.");
-            }
-        }
+    async function runCode() {
+        if (!editor) return;
+        syncCurrentFile();
+        const file = files[currentFileIndex];
+        const code = file.content;
+        const stdin = refs.stdin.value;
 
-        function clearConsole() {
-            consoleOutput.innerHTML = '<div class="text-slate-500 italic">Console cleared.</div>';
-        }
+        refs.run.disabled = true;
+        refs.run.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i><span>Running...</span>';
+        refs.console.innerHTML = '';
+        appendConsole(`▶ Running ${file.name}...`);
 
-        function runCode() {
-            const file = files[currentFileIndex];
-            const code = cmEditor.getValue();
-            const stdin = document.getElementById('stdin-input').value;
-
-            runBtn.disabled = true;
-            runBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i><span>Running...</span>';
-
-            consoleOutput.innerHTML = `<div class="text-indigo-400 font-semibold">[Executing ${file.name}...]</div>`;
-
-            setTimeout(() => {
-                let output = '';
-                let hasError = false;
-
-                if (file.language === 'python') {
-                    try {
-                        const lines = code.split('\n');
-                        const scope = {};
-                        let capturedPrints = [];
-
-                        // Mock basic Python execution interpreter for safe browser preview
-                        for (let line of lines) {
-                            line = line.trim();
-                            if (!line || line.startsWith('#')) continue;
-
-                            // Check case sensitivity for print
-                            if (line.startsWith('Print(') || (line.includes('Print') && !line.startsWith('def'))) {
-                                throw new NameError("NameError: name 'Print' is not defined. Did you mean: 'print'?");
-                            }
-
-                            // Variable assignment detection e.g. a = 384 + 347
-                            if (line.includes('=') && !line.startsWith('print') && !line.includes('==')) {
-                                const parts = line.split('=');
-                                const varName = parts[0].trim();
-                                const expr = parts[1].trim();
-                                scope[varName] = Function('"use strict"; return (' + expr + ')')();
-                            }
-                            // Print function execution
-                            else if (line.startsWith('print(') && line.endsWith(')')) {
-                                const arg = line.substring(6, line.length - 1).trim();
-                                // Evaluate variable or expression
-                                let val;
-                                if (scope[arg] !== undefined) {
-                                    val = scope[arg];
-                                } else if (arg.startsWith('"') || arg.startsWith("'")) {
-                                    val = arg.slice(1, -1);
-                                } else {
-                                    try {
-                                        // Replace variable references with values
-                                        let evalExpr = arg;
-                                        for (const [k, v] of Object.entries(scope)) {
-                                            evalExpr = evalExpr.replaceAll(k, JSON.stringify(v));
-                                        }
-                                        val = Function('"use strict"; return (' + evalExpr + ')')();
-                                    } catch (e) {
-                                        val = arg;
-                                    }
-                                }
-                                capturedPrints.push(val);
-                            }
-                        }
-
-                        output = capturedPrints.join('\n');
-                        if (!output && Object.keys(scope).length === 0 && !code.includes('print')) {
-                            output = "Process completed successfully.";
-                        }
-                    } catch (err) {
-                        hasError = true;
-                        output = err.message || "SyntaxError: invalid syntax";
-                    }
-                } else if (file.language === 'javascript') {
-                    try {
-                        let logs = [];
-                        const originalLog = console.log;
-                        console.log = (...args) => { logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : a).join(' ')); };
-                        
-                        // Execute JS code safely
-                        const executeFn = new Function(code);
-                        executeFn();
-                        
-                        console.log = originalLog;
-                        output = logs.join('\n');
-                    } catch (err) {
-                        hasError = true;
-                        output = err.toString();
-                    }
-                } else {
-                    output = `Executed successfully for ${file.language}.`;
-                }
-
-                if (stdin) {
-                    output += `\n[Stdin received]: ${stdin}`;
-                }
-
-                consoleOutput.innerHTML = `
-                    <div class="text-indigo-400 font-semibold">[Execution completed in 0.14s]</div>
-                    <pre class="whitespace-pre-wrap ${hasError ? 'text-red-400 font-bold' : 'text-emerald-400'}">${escapeHtml(output)}</pre>
-                `;
-
-                runBtn.disabled = false;
-                runBtn.innerHTML = '<i class="fa-solid fa-play text-xs"></i><span>Run</span>';
-            }, 300);
-        }
-
-        class NameError extends Error {
-            constructor(message) {
-                super(message);
-                this.name = "NameError";
-            }
-        }
-
-        function escapeHtml(text) {
-            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-            return text.replace(/[&<>"']/g, m => map[m]);
-        }
-
-        function saveProject() {
-            showToast("Project saved successfully!");
-        }
-
-        function shareProject() {
-            const shareUrl = window.location.href.split('#')[0] + "#share=" + btoa(cmEditor.getValue());
-            prompt("Copy shareable link:", shareUrl);
-            showToast("Shareable link generated!");
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = message;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
-        }
-
-        const themeToggle = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('bg-slate-900');
-            document.body.classList.toggle('bg-slate-50');
-            document.body.classList.toggle('text-slate-100');
-            document.body.classList.toggle('text-slate-800');
-            
-            const isDark = !document.body.classList.contains('bg-slate-50');
-            cmEditor.setOption("theme", isDark ? 'dracula' : 'eclipse');
-            
-            if(!isDark) {
-                themeIcon.className = "fa-solid fa-moon text-sm text-amber-500";
-                showToast("Switched to Light Mode");
+        try {
+            if (file.language === 'javascript') {
+                await runJavaScript(code, stdin);
+            } else if (file.language === 'python') {
+                await runPython(code, stdin);
+            } else if (file.language === 'html') {
+                runHtml(code);
             } else {
-                themeIcon.className = "fa-solid fa-sun text-sm text-yellow-400";
-                showToast("Switched to Dark Mode");
+                appendConsole(`${file.language === 'cpp' ? 'C++' : 'Java'} cannot be compiled inside a static GitHub Pages site yet. Connect a server-side compiler/API to enable this language.`, 'error');
+            }
+        } catch (error) {
+            appendConsole(error?.message || String(error), 'error');
+        } finally {
+            refs.run.disabled = false;
+            refs.run.innerHTML = '<i class="fa-solid fa-play text-xs"></i><span>Run</span>';
+        }
+    }
+
+    function runJavaScript(code, stdin) {
+        return new Promise(resolve => {
+            const token = `codeyau_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+            const frame = document.createElement('iframe');
+            frame.sandbox.add('allow-scripts');
+            frame.style.display = 'none';
+            document.body.appendChild(frame);
+
+            const cleanup = () => {
+                window.removeEventListener('message', onMessage);
+                frame.remove();
+                resolve();
+            };
+
+            const onMessage = event => {
+                if (event.source !== frame.contentWindow || !event.data || event.data.token !== token) return;
+                if (event.data.type === 'log') appendConsole(event.data.args, 'info');
+                if (event.data.type === 'error') appendConsole(event.data.message, 'error');
+                if (event.data.type === 'done') cleanup();
+            };
+
+            window.addEventListener('message', onMessage);
+            const safeInput = JSON.stringify(stdin);
+            const payload = code.replace(/<\/script/gi, '<\\/script');
+            frame.srcdoc = `<!doctype html><html><body><script>
+                (() => {
+                    const TOKEN = ${JSON.stringify(token)};
+                    const input = ${safeInput};
+                    const send = (type, data) => parent.postMessage({ token: TOKEN, type, ...data }, '*');
+                    const format = value => {
+                        try { return typeof value === 'string' ? value : JSON.stringify(value, null, 2); }
+                        catch (_) { return String(value); }
+                    };
+                    const original = { log: console.log, warn: console.warn, error: console.error };
+                    console.log = (...args) => send('log', { args: args.map(format).join(' ') });
+                    console.warn = (...args) => send('log', { args: '[warn] ' + args.map(format).join(' ') });
+                    console.error = (...args) => send('error', { message: args.map(format).join(' ') });
+                    window.prompt = () => input;
+                    window.onerror = message => { send('error', { message: String(message) }); };
+                    try {
+                        ${payload}
+                    } catch (error) {
+                        send('error', { message: error?.stack || error?.message || String(error) });
+                    } finally {
+                        send('done', {});
+                    }
+                })();
+            <\/script></body></html>`;
+        });
+    }
+
+    async function loadPyodide() {
+        if (window.pyodide) return window.pyodide;
+        if (!pyodidePromise) {
+            pyodidePromise = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js';
+                script.onload = async () => {
+                    try { resolve(await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/' })); }
+                    catch (error) { reject(error); }
+                };
+                script.onerror = () => reject(new Error('Could not load the Python runtime from CDN.'));
+                document.head.appendChild(script);
+            });
+        }
+        return pyodidePromise;
+    }
+
+    async function runPython(code, stdin) {
+        const pyodide = await loadPyodide();
+        pyodide.setStdin({ stdin: () => stdin });
+        pyodide.setStdout({ batched: text => appendConsole(text, 'info') });
+        pyodide.setStderr({ batched: text => appendConsole(text, 'error') });
+        await pyodide.runPythonAsync(code);
+        appendConsole('✓ Python execution completed.', 'success');
+    }
+
+    function runHtml(code) {
+        refs.previewContainer.classList.remove('hidden');
+        refs.console.classList.add('hidden');
+        refs.previewToggle.classList.remove('hidden');
+        refs.previewToggle.textContent = 'Console';
+        refs.previewFrame.srcdoc = code;
+        appendConsole('✓ HTML preview updated.', 'success');
+    }
+
+    function updatePreviewVisibility() {
+        const isHtml = files[currentFileIndex]?.language === 'html';
+        refs.previewToggle.classList.toggle('hidden', !isHtml);
+        if (!isHtml) {
+            refs.previewContainer.classList.add('hidden');
+            refs.console.classList.remove('hidden');
+            return;
+        }
+        refs.previewContainer.classList.remove('hidden');
+        refs.console.classList.add('hidden');
+        refs.previewToggle.textContent = 'Console';
+    }
+
+    function togglePreview() {
+        const previewShown = !refs.previewContainer.classList.contains('hidden');
+        refs.previewContainer.classList.toggle('hidden', previewShown);
+        refs.console.classList.toggle('hidden', !previewShown);
+        refs.previewToggle.textContent = previewShown ? 'Preview' : 'Console';
+    }
+
+    function saveProject() {
+        syncCurrentFile();
+        persist();
+        showToast('Project saved in this browser.');
+    }
+
+    function base64Encode(value) {
+        const bytes = new TextEncoder().encode(value);
+        let binary = '';
+        bytes.forEach(byte => { binary += String.fromCharCode(byte); });
+        return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function base64Decode(value) {
+        const normalized = value.replace(/-/g, '+').replace(/_/g, '/') + '=='.slice((value.length + 3) % 4);
+        const binary = atob(normalized);
+        return new TextDecoder().decode(Uint8Array.from(binary, char => char.charCodeAt(0)));
+    }
+
+    function shareProject() {
+        syncCurrentFile();
+        const payload = base64Encode(JSON.stringify({ version: 1, file: files[currentFileIndex] }));
+        const url = `${location.origin}${location.pathname}#share=${payload}`;
+        if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(url).then(() => showToast('Share link copied to clipboard.')).catch(() => prompt('Copy this share link:', url));
+        } else {
+            prompt('Copy this share link:', url);
+        }
+        history.replaceState(null, '', `#share=${payload}`);
+    }
+
+    function loadSharedProject() {
+        const hash = location.hash;
+        if (!hash.startsWith('#share=')) return;
+        try {
+            const payload = JSON.parse(base64Decode(hash.slice(7)));
+            if (!payload?.file?.name || !payload?.file?.language || typeof payload.file.content !== 'string') return;
+            files = [{ name: payload.file.name, language: payload.file.language, content: payload.file.content }];
+            currentFileIndex = 0;
+            if (editor) updateEditorFromFile();
+            showToast('Shared project loaded.');
+        } catch (_) {
+            showToast('Invalid share link.', 'error');
+        }
+    }
+
+    function applyTheme() {
+        refs.body.classList.toggle('light-mode', isLight);
+        refs.body.classList.toggle('bg-slate-900', !isLight);
+        refs.body.classList.toggle('bg-slate-50', isLight);
+        refs.body.classList.toggle('text-slate-100', !isLight);
+        refs.body.classList.toggle('text-slate-800', isLight);
+        refs.header.classList.toggle('bg-slate-800', !isLight);
+        refs.header.classList.toggle('bg-white', isLight);
+        refs.header.classList.toggle('border-slate-700', !isLight);
+        refs.header.classList.toggle('border-slate-200', isLight);
+        refs.themeIcon.className = isLight ? 'fa-solid fa-moon text-sm text-amber-500' : 'fa-solid fa-sun text-sm text-yellow-400';
+        if (editor) editor.setOption('theme', isLight ? 'eclipse' : 'dracula');
+        localStorage.setItem('codeyau-theme', isLight ? 'light' : 'dark');
+    }
+
+    refs.language.addEventListener('change', event => changeLanguage(event.target.value));
+    refs.themeToggle.addEventListener('click', () => { isLight = !isLight; applyTheme(); });
+    refs.save.addEventListener('click', saveProject);
+    refs.share.addEventListener('click', shareProject);
+    refs.run.addEventListener('click', runCode);
+    refs.newFile.addEventListener('click', addNewFile);
+    refs.reset.addEventListener('click', resetCurrentFile);
+    refs.clear.addEventListener('click', () => { refs.console.classList.remove('hidden'); clearConsole(); });
+    refs.previewToggle.addEventListener('click', togglePreview);
+
+    document.addEventListener('keydown', event => {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+            event.preventDefault();
+            saveProject();
+        }
+        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+            event.preventDefault();
+            runCode();
+        }
+    });
+
+    window.addEventListener('beforeunload', () => { syncCurrentFile(); persist(); });
+
+    loadSavedWorkspace();
+
+    window.addEventListener('DOMContentLoaded', () => {
+        editor = CodeMirror.fromTextArea(refs.textarea, {
+            mode: modeMap[files[currentFileIndex].language],
+            theme: isLight ? 'eclipse' : 'dracula',
+            lineNumbers: true,
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            styleActiveLine: true,
+            indentUnit: 4,
+            tabSize: 4,
+            indentWithTabs: false,
+            lineWrapping: false,
+            extraKeys: {
+                'Ctrl-Enter': () => runCode(),
+                'Cmd-Enter': () => runCode(),
+                'Ctrl-S': () => saveProject(),
+                'Cmd-S': () => saveProject()
             }
         });
-    </script>
+
+        editor.on('change', () => {
+            syncCurrentFile();
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(persist, 500);
+        });
+
+        renderFileList();
+        renderTabs();
+        refs.language.value = files[currentFileIndex].language;
+        applyTheme();
+        updatePreviewVisibility();
+        loadSharedProject();
+    });
+})();
+</script>
 </body>
 </html>
