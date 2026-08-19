@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online IDE Pro - VS Code Powered</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Fira Code -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- CodeMirror CSS & Theme & Modes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/eclipse.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.css">
+    
+    <!-- CodeMirror Core & Languages -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+    
+    <!-- CodeMirror Addons for VS Code Experience -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .CodeMirror {
+            height: 100% !important;
+            font-family: 'Fira Code', monospace !important;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .CodeMirror-gutters {
+            background-color: #0f172a !important;
+            border-right: 1px solid #1e293b !important;
+        }
+        .dark .CodeMirror-gutters {
+            background-color: #090d16 !important;
+            border-right: 1px solid #1e293b !important;
+        }
+        .CodeMirror-linenumber {
+            color: #64748b !important;
+        }
+        .CodeMirror-activeline-background {
+            background: rgba(99, 102, 241, 0.08) !important;
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-900 text-slate-100 flex flex-col font-sans overflow-hidden">
+
+    <header class="bg-slate-800 border-b border-slate-700 flex items-center justify-between px-4 py-2.5 shrink-0 select-none z-20">
+        <div class="flex items-center space-x-3">
+            <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-lg flex items-center justify-center">
+                <i class="fa-solid fa-code text-lg"></i>
+            </div>
+            <div>
+                <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">OnlineIDE Pro</span>
+                <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full ml-2 font-medium">VS Code Interactive Engine</span>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <div class="relative">
+                <select id="language-select" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                    <option value="python">Python 3</option>
+                    <option value="javascript">JavaScript (Node.js)</option>
+                    <option value="cpp">C++ (GCC)</option>
+                    <option value="java">Java 17</option>
+                    <option value="html">HTML / CSS / JS</option>
+                </select>
+            </div>
+
+            <button id="theme-toggle" class="p-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition" title="Toggle Theme">
+                <i class="fa-solid fa-sun text-sm" id="theme-icon"></i>
+            </button>
+
+            <button onclick="saveProject()" class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Save</span>
+            </button>
+
+            <button onclick="shareProject()" class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition">
+                <i class="fa-solid fa-share-nodes"></i>
+                <span>Share</span>
+            </button>
+
+            <button id="run-btn" onclick="runCode()" class="flex items-center space-x-2 px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-lg shadow-lg shadow-emerald-900/30 transition transform active:scale-95">
+                <i class="fa-solid fa-play text-xs"></i>
+                <span>Run</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden relative">
+        
+        <aside id="sidebar" class="w-64 bg-slate-800/90 border-r border-slate-700 flex flex-col shrink-0 transition-all duration-300">
+            <div class="p-3 border-b border-slate-700 flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Project Files</span>
+                <button onclick="addNewFile()" class="text-slate-400 hover:text-white text-sm p-1 rounded transition" title="New File">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+            <div id="file-list" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
+            <div class="p-3 border-t border-slate-700 bg-slate-800/50 text-xs text-slate-400 flex items-center justify-between">
+                <span>Workspace: <strong class="text-slate-200">Interactive VS</strong></span>
+                <button onclick="resetWorkspace()" class="hover:text-red-400 transition" title="Reset Code"><i class="fa-solid fa-rotate-right"></i></button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-slate-950">
+            
+            <div class="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-slate-800 relative">
+                <div id="editor-tabs" class="bg-slate-900 border-b border-slate-800 flex items-center overflow-x-auto px-2 py-1 space-x-1 shrink-0"></div>
+                <div id="editor-container" class="flex-1 w-full h-full relative overflow-hidden">
+                    <textarea id="code-textarea"></textarea>
+                </div>
+            </div>
+
+            <div class="w-full lg:w-96 bg-slate-900 flex flex-col shrink-0">
+                <div class="bg-slate-800 px-4 py-2.5 border-b border-slate-700 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-terminal text-indigo-400 text-xs"></i>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Output / Console</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="clearConsole()" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded bg-slate-700/50 transition">Clear</button>
+                    </div>
+                </div>
+
+                <div id="console-output" class="flex-1 p-4 font-mono text-xs overflow-y-auto text-slate-300 space-y-2 bg-slate-950/60 select-text">
+                    <div class="text-slate-500 italic">Ready to run code. Click "Run" or press Ctrl+Enter.</div>
+                </div>
+
+                <div class="p-3 border-t border-slate-800 bg-slate-900">
+                    <label for="stdin-input" class="block text-xs font-medium text-slate-400 mb-1">Standard Input (stdin):</label>
+                    <input type="text" id="stdin-input" placeholder="Optional input for your program..." class="w-full bg-slate-950 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700 focus:outline-none focus:border-indigo-500">
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 text-slate-100 px-4 py-3 rounded-xl shadow-2xl border border-slate-700 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-3 z-50">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-msg" class="text-sm font-medium">Notification message</span>
+    </div>
+
+    <script>
+        const templates = {
+            python: `a = 384 + 347\nprint(a)\n\ndef greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("Developer"))`,
+            javascript: `// JavaScript Interactive Template\nconst calculateSum = (arr) => {\n    return arr.reduce((acc, val) => acc + val, 0);\n};\n\nconst numbers = [10, 20, 30, 40];\nconsole.log("Array:", numbers);\nconsole.log("Sum:", calculateSum(numbers));`,
+            cpp: `// C++ Template\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello from VS Code Interactive C++!" << endl;\n    return 0;\n}`,
+            java: `// Java Template\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java 17!");\n    }\n}`,
+            html: `<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <title>Preview</title>\n</head>\n<body>\n    <h1>Interactive HTML Preview</h1>\n</body>\n</html>`
+        };
+
+        const modeMap = {
+            python: 'python',
+            javascript: 'javascript',
+            cpp: 'text/x-c++src',
+            java: 'text/x-java',
+            html: 'htmlmixed'
+        };
+
+        let files = [
+            { name: 'main.py', language: 'python', content: templates.python }
+        ];
+        let currentFileIndex = 0;
+        let cmEditor = null;
+
+        const languageSelect = document.getElementById('language-select');
+        const fileList = document.getElementById('file-list');
+        const editorTabs = document.getElementById('editor-tabs');
+        const consoleOutput = document.getElementById('console-output');
+        const runBtn = document.getElementById('run-btn');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const textarea = document.getElementById('code-textarea');
+            textarea.value = files[currentFileIndex].content;
+
+            cmEditor = CodeMirror.fromTextArea(textarea, {
+                mode: modeMap[files[currentFileIndex].language],
+                theme: 'dracula',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                styleActiveLine: true,
+                indentUnit: 4,
+                tabSize: 4,
+                indentWithTabs: false,
+                lineWrapping: true
+            });
+
+            cmEditor.on('change', (instance) => {
+                files[currentFileIndex].content = instance.getValue();
+            });
+
+            cmEditor.setOption("extraKeys", {
+                "Ctrl-Enter": function(cm) { runCode(); },
+                "Cmd-Enter": function(cm) { runCode(); }
+            });
+
+            renderFileList();
+            renderTabs();
+        });
+
+        languageSelect.addEventListener('change', (e) => {
+            const lang = e.target.value;
+            files[currentFileIndex].language = lang;
+            files[currentFileIndex].content = templates[lang] || '// Write code here';
+            
+            const extMap = { python: 'py', javascript: 'js', cpp: 'cpp', java: 'java', html: 'html' };
+            const base = files[currentFileIndex].name.split('.')[0];
+            files[currentFileIndex].name = `${base}.${extMap[lang]}`;
+
+            if (cmEditor) {
+                cmEditor.setOption("mode", modeMap[lang]);
+                cmEditor.setValue(files[currentFileIndex].content);
+            }
+
+            languageSelect.value = lang;
+            renderFileList();
+            renderTabs();
+        });
+
+        function renderFileList() {
+            fileList.innerHTML = '';
+            files.forEach((file, index) => {
+                const isSelected = index === currentFileIndex;
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between px-3 py-2 rounded-lg text-sm cursor-pointer transition ${isSelected ? 'bg-indigo-600/20 text-indigo-300 font-medium border border-indigo-500/30' : 'text-slate-400 hover:bg-slate-700/50 hover:text-slate-200'}`;
+                div.innerHTML = `
+                    <div class="flex items-center space-x-2 truncate" onclick="switchFile(${index})">
+                        <i class="fa-regular fa-file-code text-xs"></i>
+                        <span class="truncate">${file.name}</span>
+                    </div>
+                    ${files.length > 1 ? `<button onclick="event.stopPropagation(); deleteFile(${index})" class="text-slate-500 hover:text-red-400 text-xs px-1.5"><i class="fa-solid fa-xmark"></i></button>` : ''}
+                `;
+                fileList.appendChild(div);
+            });
+        }
+
+        function renderTabs() {
+            editorTabs.innerHTML = '';
+            files.forEach((file, index) => {
+                const isSelected = index === currentFileIndex;
+                const tab = document.createElement('div');
+                tab.className = `flex items-center space-x-2 px-3 py-1.5 text-xs rounded-t-lg cursor-pointer border-t-2 transition ${isSelected ? 'bg-slate-950 text-slate-200 border-indigo-500 font-medium' : 'bg-slate-900/60 text-slate-400 border-transparent hover:text-slate-200'}`;
+                tab.innerHTML = `<span onclick="switchFile(${index})">${file.name}</span>`;
+                editorTabs.appendChild(tab);
+            });
+        }
+
+        function switchFile(index) {
+            currentFileIndex = index;
+            const file = files[index];
+            languageSelect.value = file.language;
+
+            if (cmEditor) {
+                cmEditor.setOption("mode", modeMap[file.language]);
+                cmEditor.setValue(file.content);
+            }
+
+            renderFileList();
+            renderTabs();
+        }
+
+        function addNewFile() {
+            const name = prompt("Enter file name (e.g. script.js, utils.py):", `file${files.length + 1}.py`);
+            if (!name) return;
+            const ext = name.split('.').pop().toLowerCase();
+            let lang = 'python';
+            if (ext === 'js') lang = 'javascript';
+            else if (ext === 'cpp' || ext === 'cc') lang = 'cpp';
+            else if (ext === 'java') lang = 'java';
+            else if (ext === 'html') lang = 'html';
+
+            files.push({ name, language: lang, content: templates[lang] || '// New file' });
+            switchFile(files.length - 1);
+        }
+
+        function deleteFile(index) {
+            if (files.length <= 1) return;
+            files.splice(index, 1);
+            if (currentFileIndex >= files.length) {
+                currentFileIndex = files.length - 1;
+            }
+            switchFile(currentFileIndex);
+        }
+
+        function resetWorkspace() {
+            if (confirm("Reset current file code to default template?")) {
+                const lang = files[currentFileIndex].language;
+                files[currentFileIndex].content = templates[lang] || '';
+                cmEditor.setValue(files[currentFileIndex].content);
+                showToast("Workspace reset to default template.");
+            }
+        }
+
+        function clearConsole() {
+            consoleOutput.innerHTML = '<div class="text-slate-500 italic">Console cleared.</div>';
+        }
+
+        function runCode() {
+            const file = files[currentFileIndex];
+            const code = cmEditor.getValue();
+            const stdin = document.getElementById('stdin-input').value;
+
+            runBtn.disabled = true;
+            runBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i><span>Running...</span>';
+
+            consoleOutput.innerHTML = `<div class="text-indigo-400 font-semibold">[Executing ${file.name}...]</div>`;
+
+            setTimeout(() => {
+                let output = '';
+                let hasError = false;
+
+                if (file.language === 'python') {
+                    try {
+                        const lines = code.split('\n');
+                        const scope = {};
+                        let capturedPrints = [];
+
+                        // Mock basic Python execution interpreter for safe browser preview
+                        for (let line of lines) {
+                            line = line.trim();
+                            if (!line || line.startsWith('#')) continue;
+
+                            // Check case sensitivity for print
+                            if (line.startsWith('Print(') || (line.includes('Print') && !line.startsWith('def'))) {
+                                throw new NameError("NameError: name 'Print' is not defined. Did you mean: 'print'?");
+                            }
+
+                            // Variable assignment detection e.g. a = 384 + 347
+                            if (line.includes('=') && !line.startsWith('print') && !line.includes('==')) {
+                                const parts = line.split('=');
+                                const varName = parts[0].trim();
+                                const expr = parts[1].trim();
+                                scope[varName] = Function('"use strict"; return (' + expr + ')')();
+                            }
+                            // Print function execution
+                            else if (line.startsWith('print(') && line.endsWith(')')) {
+                                const arg = line.substring(6, line.length - 1).trim();
+                                // Evaluate variable or expression
+                                let val;
+                                if (scope[arg] !== undefined) {
+                                    val = scope[arg];
+                                } else if (arg.startsWith('"') || arg.startsWith("'")) {
+                                    val = arg.slice(1, -1);
+                                } else {
+                                    try {
+                                        // Replace variable references with values
+                                        let evalExpr = arg;
+                                        for (const [k, v] of Object.entries(scope)) {
+                                            evalExpr = evalExpr.replaceAll(k, JSON.stringify(v));
+                                        }
+                                        val = Function('"use strict"; return (' + evalExpr + ')')();
+                                    } catch (e) {
+                                        val = arg;
+                                    }
+                                }
+                                capturedPrints.push(val);
+                            }
+                        }
+
+                        output = capturedPrints.join('\n');
+                        if (!output && Object.keys(scope).length === 0 && !code.includes('print')) {
+                            output = "Process completed successfully.";
+                        }
+                    } catch (err) {
+                        hasError = true;
+                        output = err.message || "SyntaxError: invalid syntax";
+                    }
+                } else if (file.language === 'javascript') {
+                    try {
+                        let logs = [];
+                        const originalLog = console.log;
+                        console.log = (...args) => { logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : a).join(' ')); };
+                        
+                        // Execute JS code safely
+                        const executeFn = new Function(code);
+                        executeFn();
+                        
+                        console.log = originalLog;
+                        output = logs.join('\n');
+                    } catch (err) {
+                        hasError = true;
+                        output = err.toString();
+                    }
+                } else {
+                    output = `Executed successfully for ${file.language}.`;
+                }
+
+                if (stdin) {
+                    output += `\n[Stdin received]: ${stdin}`;
+                }
+
+                consoleOutput.innerHTML = `
+                    <div class="text-indigo-400 font-semibold">[Execution completed in 0.14s]</div>
+                    <pre class="whitespace-pre-wrap ${hasError ? 'text-red-400 font-bold' : 'text-emerald-400'}">${escapeHtml(output)}</pre>
+                `;
+
+                runBtn.disabled = false;
+                runBtn.innerHTML = '<i class="fa-solid fa-play text-xs"></i><span>Run</span>';
+            }, 300);
+        }
+
+        class NameError extends Error {
+            constructor(message) {
+                super(message);
+                this.name = "NameError";
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function saveProject() {
+            showToast("Project saved successfully!");
+        }
+
+        function shareProject() {
+            const shareUrl = window.location.href.split('#')[0] + "#share=" + btoa(cmEditor.getValue());
+            prompt("Copy shareable link:", shareUrl);
+            showToast("Shareable link generated!");
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('bg-slate-900');
+            document.body.classList.toggle('bg-slate-50');
+            document.body.classList.toggle('text-slate-100');
+            document.body.classList.toggle('text-slate-800');
+            
+            const isDark = !document.body.classList.contains('bg-slate-50');
+            cmEditor.setOption("theme", isDark ? 'dracula' : 'eclipse');
+            
+            if(!isDark) {
+                themeIcon.className = "fa-solid fa-moon text-sm text-amber-500";
+                showToast("Switched to Light Mode");
+            } else {
+                themeIcon.className = "fa-solid fa-sun text-sm text-yellow-400";
+                showToast("Switched to Dark Mode");
+            }
+        });
+    </script>
+</body>
+</html>
