@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 const $=id=>document.getElementById(id);
-const S={files:'codeyau-files',current:'codeyau-current',theme:'codeyau-theme',users:'codeyau-users',session:'codeyau-session',model:'codeyau-gemini-model'};
+const S={files:'codeyau-files',current:'codeyau-current',theme:'codeyau-theme',users:'codeyau-users',session:'codeyau-session',model:'codeyau-gemini-model-v2'};
 const modes={python:'python',javascript:'javascript',cpp:'text/x-c++src',java:'text/x-java',html:'htmlmixed'};
 const exts={python:'py',javascript:'js',cpp:'cpp',java:'java',html:'html'};
 const templates={python:'a = 384 + 347\nprint(a)',javascript:'const a = 384 + 347;\nconsole.log(a);',cpp:'#include <iostream>\nint main(){std::cout << 384 + 347 << std::endl;return 0;}',java:'public class Main {\n public static void main(String[] args){\n  System.out.println(384 + 347);\n }\n}',html:'<!doctype html><html><body><h1>Hello, codeyau!</h1></body></html>'};
