@@ -4,7 +4,7 @@
   const $ = (id) => document.getElementById(id);
   const PYODIDE_VERSION = '314.0.3';
   const PYODIDE_INDEX = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
-  const STORAGE = { files:'codeyau-files', current:'codeyau-current', projects:'codeyau-projects', theme:'codeyau-theme', users:'codeyau-users', session:'codeyau-session', model:'codeyau-gemini-model-v2-v2-v2-v2-v2-v2-v2' };
+  const STORAGE = { files:'codeyau-files', current:'codeyau-current', projects:'codeyau-projects', theme:'codeyau-theme', users:'codeyau-users', session:'codeyau-session', model:'codeyau-gemini-model-v2-v2-v2-v2-v2-v2-v2-v2' };
   const MODES = { python:'python', javascript:'javascript', cpp:'text/x-c++src', java:'text/x-java', html:'htmlmixed' };
   const EXTENSIONS = { python:'py', javascript:'js', cpp:'cpp', java:'java', html:'html' };
   const LABELS = { python:'Python 3', javascript:'JavaScript', cpp:'C++', java:'Java', html:'HTML / CSS / JS' };
