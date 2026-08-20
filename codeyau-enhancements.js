@@ -3,7 +3,6 @@
   const $ = (id) => document.getElementById(id);
   const KEY = 'codeyau-theme';
   const getTheme = () => { try { return localStorage.getItem(KEY) || 'dark'; } catch { return 'dark'; } };
-  const setTheme = (v) => { try { localStorage.setItem(KEY, v); } catch {} };
 
   function applyLightMode() {
     const light = getTheme() === 'light';
@@ -18,9 +17,6 @@
     }
     const icon = $('themeIcon');
     if (icon) icon.className = light ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-    if (window.editor && typeof window.editor.setOption === 'function') {
-      window.editor.setOption('theme', light ? 'eclipse' : 'dracula');
-    }
   }
 
   function toast(message, error = false) {
@@ -94,7 +90,6 @@
   }
 
   function exposeState() {
-    // app.js keeps its state inside a closure; mirror file state for small UX actions.
     const sync = () => {
       try { window.__codeyauFiles = JSON.parse(localStorage.getItem('codeyau-files') || '[]'); } catch { window.__codeyauFiles = []; }
     };
@@ -124,7 +119,6 @@
     addCommandBar();
     addEditorFeatures();
     applyLightMode();
-    $('themeBtn')?.addEventListener('click', () => { setTheme(getTheme() === 'light' ? 'dark' : 'light'); applyLightMode(); });
     window.addEventListener('storage', (e) => { if (e.key === KEY) applyLightMode(); });
   }
 
